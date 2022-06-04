@@ -1,0 +1,97 @@
+run:
+  deadline: 10m
+  skip-files: ['temp.go' ]
+  skip-dirs: [ ]
+
+linters-settings:
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment
+  gocyclo:
+    min-complexity: 15
+  maligned:
+    suggest-new: true
+  goconst:
+    min-len: 5
+    min-occurrences: 3
+  misspell:
+    locale: US
+  funlen:
+    lines: -1
+    statements: 50
+  godox:
+    keywords:
+      - FIXME
+  gofumpt:
+    extra-rules: true
+  depguard:
+    list-type: blacklist
+    include-go-root: false
+    packages:
+      - github.com/sirupsen/logrus
+      - github.com/pkg/errors
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+    disabled-checks:
+      - sloppyReassign
+      - rangeValCopy
+      - octalLiteral
+      - paramTypeCombine # already handle by gofumpt.extra-rules
+      - unnamedResult
+      - hugeParam
+  tagliatelle:
+    case:
+      rules:
+        json: pascal
+  gosec:
+    excludes:
+      - G304
+      - G306
+
+linters:
+  enable-all: true
+  disable:
+    - maligned # deprecated
+    - interfacer # deprecated
+    - scopelint # deprecated
+    - golint # deprecated
+    - exhaustivestruct # deprecated
+    - execinquery # not relevant (SQL)
+    - sqlclosecheck # not relevant (SQL)
+    - rowserrcheck # not relevant (SQL)
+    - cyclop # duplicate of gocyclo
+    - lll
+    - dupl
+    - wsl
+    - nlreturn
+    - gomnd
+    - goerr113
+    - wrapcheck
+    - exhaustive
+    - exhaustruct
+    - testpackage
+    - tparallel
+    - paralleltest
+    - prealloc
+    - forcetypeassert
+    - bodyclose # Too many false positives: https://github.com/timakin/bodyclose/issues/30
+    - ifshort
+    - varnamelen
+    - nilnil
+    - ireturn
+    - errchkjson
+    - contextcheck
+
+issues:
+  exclude-use-default: false
+  max-per-linter: 0
+  max-same-issues: 0
+  exclude-rules:
+    - path: .*_test.go
+      linters:
+        - funlen
+        - noctx
