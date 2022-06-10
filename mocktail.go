@@ -23,6 +23,7 @@ const (
 	srcMockFile    = "mock_test.go"
 	outputMockFile = "mock_gen_test.go"
 )
+const contextType = "context.Context"
 
 // PackageDesc represent a package.
 type PackageDesc struct {
@@ -62,7 +63,7 @@ func main() {
 	}
 }
 
-//nolint:gocognit // The complexity is expected.
+//nolint:gocognit,gocyclo // The complexity is expected.
 func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 	root := filepath.Dir(modulePath)
 
@@ -252,7 +253,7 @@ func new%[1]sMock(tb testing.TB) *%[2]sMock {
 					param := signature.Params().At(i)
 
 					var ignored bool
-					if param.Type().String() == "context.Context" {
+					if param.Type().String() == contextType {
 						writer.Print("_")
 						ignored = true
 					} else {
@@ -338,7 +339,7 @@ func new%[1]sMock(tb testing.TB) *%[2]sMock {
 				for i := 0; i < signature.Params().Len(); i++ {
 					param := signature.Params().At(i)
 
-					if param.Type().String() == "context.Context" {
+					if param.Type().String() == contextType {
 						continue
 					}
 
@@ -359,8 +360,31 @@ func new%[1]sMock(tb testing.TB) *%[2]sMock {
 
 				// ---
 
-				writer.Printf("func (_m *%sMock) On%sRaw(args ...interface{}) *%s%sCall {\n", structBaseName, method.Name(), structBaseName, method.Name())
-				writer.Printf(`	return &%s%sCall{Call: _m.Mock.On("%s", args...)}`, structBaseName, method.Name(), method.Name())
+				writer.Printf("func (_m *%sMock) On%sRaw(", structBaseName, method.Name())
+
+				var rawArgNames []string
+				for i := 0; i < signature.Params().Len(); i++ {
+					param := signature.Params().At(i)
+
+					if param.Type().String() == contextType {
+						continue
+					}
+
+					writer.Print(param.Name())
+					writer.Print(" interface{}")
+					rawArgNames = append(rawArgNames, param.Name())
+
+					if i+1 < signature.Params().Len() {
+						writer.Print(", ")
+					}
+				}
+
+				writer.Printf(") *%s%sCall {\n", structBaseName, method.Name())
+				writer.Printf(`	return &%s%sCall{Call: _m.Mock.On("%s"`, structBaseName, method.Name(), method.Name())
+				if len(rawArgNames) > 0 {
+					writer.Printf(`, %s`, strings.Join(rawArgNames, ", "))
+				}
+				writer.Print(")}")
 				writer.Println()
 				writer.Println("}")
 				writer.Println()
@@ -402,6 +426,7 @@ func new%[1]sMock(tb testing.TB) *%[2]sMock {
 		// gofmt
 		source, err := format.Source(buffer.Bytes())
 		if err != nil {
+			log.Println(buffer.String())
 			return fmt.Errorf("source: %w", err)
 		}
 
