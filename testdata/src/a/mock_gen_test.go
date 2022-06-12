@@ -121,6 +121,10 @@ func (_c *pineappleGooCall) OnWorldRaw() *pineappleWorldCall {
 func (_m *pineappleMock) Hello(bar Water) string {
 	_ret := _m.Called(bar)
 
+	if _rf, ok := _ret.Get(0).(func(Water) string); ok {
+		return _rf(bar)
+	}
+
 	_ra0 := _ret.String(0)
 
 	return _ra0
@@ -181,6 +185,11 @@ func (_c *pineappleHelloCall) Maybe() *pineappleHelloCall {
 
 func (_c *pineappleHelloCall) TypedReturns(a string) *pineappleHelloCall {
 	_c.Call = _c.Return(a)
+	return _c
+}
+
+func (_c *pineappleHelloCall) ReturnsFn(fn func(Water) string) *pineappleHelloCall {
+	_c.Call = _c.Return(fn)
 	return _c
 }
 
@@ -316,6 +325,10 @@ func newCoconutMock(tb testing.TB) *coconutMock {
 func (_m *coconutMock) Boo(src *bytes.Buffer) time.Duration {
 	_ret := _m.Called(src)
 
+	if _rf, ok := _ret.Get(0).(func(*bytes.Buffer) time.Duration); ok {
+		return _rf(src)
+	}
+
 	_ra0, _ := _ret.Get(0).(time.Duration)
 
 	return _ra0
@@ -379,6 +392,11 @@ func (_c *coconutBooCall) TypedReturns(a time.Duration) *coconutBooCall {
 	return _c
 }
 
+func (_c *coconutBooCall) ReturnsFn(fn func(*bytes.Buffer) time.Duration) *coconutBooCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
 func (_c *coconutBooCall) OnBoo(src *bytes.Buffer) *coconutBooCall {
 	return _c.Parent.OnBoo(src)
 }
@@ -437,6 +455,10 @@ func (_c *coconutBooCall) OnVooRaw(src interface{}) *coconutVooCall {
 
 func (_m *coconutMock) Doo(src time.Duration) time.Duration {
 	_ret := _m.Called(src)
+
+	if _rf, ok := _ret.Get(0).(func(time.Duration) time.Duration); ok {
+		return _rf(src)
+	}
 
 	_ra0, _ := _ret.Get(0).(time.Duration)
 
@@ -498,6 +520,11 @@ func (_c *coconutDooCall) Maybe() *coconutDooCall {
 
 func (_c *coconutDooCall) TypedReturns(a time.Duration) *coconutDooCall {
 	_c.Call = _c.Return(a)
+	return _c
+}
+
+func (_c *coconutDooCall) ReturnsFn(fn func(time.Duration) time.Duration) *coconutDooCall {
+	_c.Call = _c.Return(fn)
 	return _c
 }
 
@@ -673,6 +700,10 @@ func (_c *coconutHooCall) OnVooRaw(src interface{}) *coconutVooCall {
 func (_m *coconutMock) Joo(aParam string, bParam int, cParam Water) (string, int) {
 	_ret := _m.Called(aParam, bParam, cParam)
 
+	if _rf, ok := _ret.Get(0).(func(string, int, Water) (string, int)); ok {
+		return _rf(aParam, bParam, cParam)
+	}
+
 	_ra0 := _ret.String(0)
 	_rb1 := _ret.Int(1)
 
@@ -737,6 +768,11 @@ func (_c *coconutJooCall) TypedReturns(a string, b int) *coconutJooCall {
 	return _c
 }
 
+func (_c *coconutJooCall) ReturnsFn(fn func(string, int, Water) (string, int)) *coconutJooCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
 func (_c *coconutJooCall) OnBoo(src *bytes.Buffer) *coconutBooCall {
 	return _c.Parent.OnBoo(src)
 }
@@ -795,6 +831,10 @@ func (_c *coconutJooCall) OnVooRaw(src interface{}) *coconutVooCall {
 
 func (_m *coconutMock) Koo(src string) string {
 	_ret := _m.Called(src)
+
+	if _rf, ok := _ret.Get(0).(func(string) string); ok {
+		return _rf(src)
+	}
 
 	dst := _ret.String(0)
 
@@ -859,6 +899,11 @@ func (_c *coconutKooCall) TypedReturns(a string) *coconutKooCall {
 	return _c
 }
 
+func (_c *coconutKooCall) ReturnsFn(fn func(string) string) *coconutKooCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
 func (_c *coconutKooCall) OnBoo(src *bytes.Buffer) *coconutBooCall {
 	return _c.Parent.OnBoo(src)
 }
@@ -917,6 +962,10 @@ func (_c *coconutKooCall) OnVooRaw(src interface{}) *coconutVooCall {
 
 func (_m *coconutMock) Too(src string) time.Duration {
 	_ret := _m.Called(src)
+
+	if _rf, ok := _ret.Get(0).(func(string) time.Duration); ok {
+		return _rf(src)
+	}
 
 	_ra0, _ := _ret.Get(0).(time.Duration)
 
@@ -981,6 +1030,11 @@ func (_c *coconutTooCall) TypedReturns(a time.Duration) *coconutTooCall {
 	return _c
 }
 
+func (_c *coconutTooCall) ReturnsFn(fn func(string) time.Duration) *coconutTooCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
 func (_c *coconutTooCall) OnBoo(src *bytes.Buffer) *coconutBooCall {
 	return _c.Parent.OnBoo(src)
 }
@@ -1039,6 +1093,10 @@ func (_c *coconutTooCall) OnVooRaw(src interface{}) *coconutVooCall {
 
 func (_m *coconutMock) Voo(src *module.Version) time.Duration {
 	_ret := _m.Called(src)
+
+	if _rf, ok := _ret.Get(0).(func(*module.Version) time.Duration); ok {
+		return _rf(src)
+	}
 
 	_ra0, _ := _ret.Get(0).(time.Duration)
 
@@ -1100,6 +1158,11 @@ func (_c *coconutVooCall) Maybe() *coconutVooCall {
 
 func (_c *coconutVooCall) TypedReturns(a time.Duration) *coconutVooCall {
 	_c.Call = _c.Return(a)
+	return _c
+}
+
+func (_c *coconutVooCall) ReturnsFn(fn func(*module.Version) time.Duration) *coconutVooCall {
+	_c.Call = _c.Return(fn)
 	return _c
 }
 

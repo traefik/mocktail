@@ -166,6 +166,8 @@ func (s Syrup) mockedMethod(writer io.Writer) error {
 	}
 	w.Printf("_m.Called(%s)\n", strings.Join(argNames, ", "))
 
+	s.writeReturnsFnCaller(w, argNames, params, results)
+
 	for i := 0; i < results.Len(); i++ {
 		if i == 0 {
 			w.Println()
@@ -203,6 +205,44 @@ func (s Syrup) mockedMethod(writer io.Writer) error {
 	w.Println()
 
 	return w.Err()
+}
+
+func (s Syrup) writeReturnsFnCaller(w *Writer, argNames []string, params, results *types.Tuple) {
+	if len(argNames) > 0 && results.Len() > 0 {
+		w.Println()
+		w.Printf("\tif _rf, ok := _ret.Get(0).(%s); ok {\n", s.createFuncSignature(params, results))
+		w.Printf("\t\treturn _rf(%s)\n", strings.Join(argNames, ", "))
+		w.Println("\t}")
+	}
+}
+
+func (s Syrup) createFuncSignature(params, results *types.Tuple) string {
+	fnSign := "func ("
+	for i := 0; i < params.Len(); i++ {
+		param := params.At(i)
+		if param.Type().String() == contextType {
+			continue
+		}
+
+		fnSign += s.getTypeName(param.Type())
+
+		if i+1 < params.Len() {
+			fnSign += ", "
+		}
+	}
+	fnSign += ") "
+
+	fnSign += "("
+	for i := 0; i < results.Len(); i++ {
+		rType := results.At(i).Type()
+		fnSign += s.getTypeName(rType)
+		if i+1 < results.Len() {
+			fnSign += ", "
+		}
+	}
+	fnSign += ")"
+
+	return fnSign
 }
 
 func (s Syrup) methodOn(writer io.Writer) error {
@@ -299,6 +339,11 @@ func (s Syrup) Call(writer io.Writer, methods []*types.Func) error {
 		return err
 	}
 
+	err = s.returnsFn(writer)
+	if err != nil {
+		return err
+	}
+
 	err = s.callMethodsOn(writer, methods)
 	if err != nil {
 		return err
@@ -353,6 +398,31 @@ func (s Syrup) typedReturns(writer io.Writer) error {
 
 	w.Printf(") *%s%sCall {\n", structBaseName, s.Method.Name())
 	w.Printf("\t_c.Call = _c.Return(%s)\n", returnNames)
+	w.Println("\treturn _c")
+	w.Println("}")
+	w.Println()
+
+	return w.Err()
+}
+
+func (s Syrup) returnsFn(writer io.Writer) error {
+	w := &Writer{writer: writer}
+
+	results := s.Signature.Results()
+	if results.Len() < 1 {
+		return nil
+	}
+
+	params := s.Signature.Params()
+	if params.Len() < 1 {
+		return nil
+	}
+
+	structBaseName := strcase.ToGoCamel(s.InterfaceName)
+
+	w.Printf("func (_c *%[1]s%[2]sCall) ReturnsFn(fn %[3]s) *%[1]s%[2]sCall {\n",
+		structBaseName, s.Method.Name(), s.createFuncSignature(params, results))
+	w.Println("\t_c.Call = _c.Return(fn)")
 	w.Println("\treturn _c")
 	w.Println("}")
 	w.Println()
