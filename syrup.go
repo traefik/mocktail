@@ -217,7 +217,7 @@ func (s Syrup) writeReturnsFnCaller(w *Writer, argNames []string, params, result
 }
 
 func (s Syrup) createFuncSignature(params, results *types.Tuple) string {
-	fnSign := "func ("
+	fnSign := "func("
 	for i := 0; i < params.Len(); i++ {
 		param := params.At(i)
 		if param.Type().String() == contextType {
@@ -232,15 +232,17 @@ func (s Syrup) createFuncSignature(params, results *types.Tuple) string {
 	}
 	fnSign += ") "
 
-	fnSign += "("
-	for i := 0; i < results.Len(); i++ {
-		rType := results.At(i).Type()
-		fnSign += s.getTypeName(rType)
-		if i+1 < results.Len() {
-			fnSign += ", "
+	if results != nil {
+		fnSign += "("
+		for i := 0; i < results.Len(); i++ {
+			rType := results.At(i).Type()
+			fnSign += s.getTypeName(rType)
+			if i+1 < results.Len() {
+				fnSign += ", "
+			}
 		}
+		fnSign += ")"
 	}
-	fnSign += ")"
 
 	return fnSign
 }
@@ -344,6 +346,11 @@ func (s Syrup) Call(writer io.Writer, methods []*types.Func) error {
 		return err
 	}
 
+	err = s.typedRun(writer)
+	if err != nil {
+		return err
+	}
+
 	err = s.callMethodsOn(writer, methods)
 	if err != nil {
 		return err
@@ -398,6 +405,50 @@ func (s Syrup) typedReturns(writer io.Writer) error {
 
 	w.Printf(") *%s%sCall {\n", structBaseName, s.Method.Name())
 	w.Printf("\t_c.Call = _c.Return(%s)\n", returnNames)
+	w.Println("\treturn _c")
+	w.Println("}")
+	w.Println()
+
+	return w.Err()
+}
+
+func (s Syrup) typedRun(writer io.Writer) error {
+	w := &Writer{writer: writer}
+
+	params := s.Signature.Params()
+
+	structBaseName := strcase.ToGoCamel(s.InterfaceName)
+
+	w.Printf("func (_c *%[1]s%[2]sCall) TypedRun(fn %[3]s) *%[1]s%[2]sCall {\n",
+		structBaseName, s.Method.Name(), s.createFuncSignature(params, nil))
+	w.Println("\t_c.Call = _c.Call.Run(func(args mock.Arguments) {")
+
+	var pos int
+	var paramNames []string
+	for i := 0; i < params.Len(); i++ {
+		param := params.At(i)
+		pType := param.Type()
+
+		if pType.String() == contextType {
+			continue
+		}
+
+		paramName := "_" + getParamName(param, i)
+		paramNames = append(paramNames, paramName)
+
+		switch pType.String() {
+		case "string", "int", "bool", "error":
+			w.Printf("\t\t%s := args.%s(%d)\n", paramName, strcase.ToPascal(pType.String()), pos)
+		default:
+			w.Printf("\t\t%s, _ := args.Get(%d).(%s)\n", paramName, pos, s.getTypeName(pType))
+		}
+
+		pos++
+	}
+
+	w.Printf("\t\tfn(%s)\n", strings.Join(paramNames, ", "))
+
+	w.Println("\t})")
 	w.Println("\treturn _c")
 	w.Println("}")
 	w.Println()

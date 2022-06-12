@@ -4,6 +4,7 @@ package a
 
 import (
 	"bytes"
+	"context"
 	"testing"
 	"time"
 
@@ -24,6 +25,122 @@ func newPineappleMock(tb testing.TB) *pineappleMock {
 	tb.Cleanup(func() { m.AssertExpectations(tb) })
 
 	return m
+}
+
+func (_m *pineappleMock) Coo(_ context.Context, bParam string, cParam Water) Water {
+	_ret := _m.Called(bParam, cParam)
+
+	if _rf, ok := _ret.Get(0).(func(string, Water) Water); ok {
+		return _rf(bParam, cParam)
+	}
+
+	_ra0, _ := _ret.Get(0).(Water)
+
+	return _ra0
+}
+
+func (_m *pineappleMock) OnCoo(bParam string, cParam Water) *pineappleCooCall {
+	return &pineappleCooCall{Call: _m.Mock.On("Coo", bParam, cParam), Parent: _m}
+}
+
+func (_m *pineappleMock) OnCooRaw(bParam interface{}, cParam interface{}) *pineappleCooCall {
+	return &pineappleCooCall{Call: _m.Mock.On("Coo", bParam, cParam), Parent: _m}
+}
+
+type pineappleCooCall struct {
+	*mock.Call
+	Parent *pineappleMock
+}
+
+func (_c *pineappleCooCall) Panic(msg string) *pineappleCooCall {
+	_c.Call = _c.Call.Panic(msg)
+	return _c
+}
+
+func (_c *pineappleCooCall) Once() *pineappleCooCall {
+	_c.Call = _c.Call.Once()
+	return _c
+}
+
+func (_c *pineappleCooCall) Twice() *pineappleCooCall {
+	_c.Call = _c.Call.Twice()
+	return _c
+}
+
+func (_c *pineappleCooCall) Times(i int) *pineappleCooCall {
+	_c.Call = _c.Call.Times(i)
+	return _c
+}
+
+func (_c *pineappleCooCall) WaitUntil(w <-chan time.Time) *pineappleCooCall {
+	_c.Call = _c.Call.WaitUntil(w)
+	return _c
+}
+
+func (_c *pineappleCooCall) After(d time.Duration) *pineappleCooCall {
+	_c.Call = _c.Call.After(d)
+	return _c
+}
+
+func (_c *pineappleCooCall) Run(fn func(args mock.Arguments)) *pineappleCooCall {
+	_c.Call = _c.Call.Run(fn)
+	return _c
+}
+
+func (_c *pineappleCooCall) Maybe() *pineappleCooCall {
+	_c.Call = _c.Call.Maybe()
+	return _c
+}
+
+func (_c *pineappleCooCall) TypedReturns(a Water) *pineappleCooCall {
+	_c.Call = _c.Return(a)
+	return _c
+}
+
+func (_c *pineappleCooCall) ReturnsFn(fn func(string, Water) Water) *pineappleCooCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
+func (_c *pineappleCooCall) TypedRun(fn func(string, Water)) *pineappleCooCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_bParam := args.String(0)
+		_cParam, _ := args.Get(1).(Water)
+		fn(_bParam, _cParam)
+	})
+	return _c
+}
+
+func (_c *pineappleCooCall) OnCoo(bParam string, cParam Water) *pineappleCooCall {
+	return _c.Parent.OnCoo(bParam, cParam)
+}
+
+func (_c *pineappleCooCall) OnGoo() *pineappleGooCall {
+	return _c.Parent.OnGoo()
+}
+
+func (_c *pineappleCooCall) OnHello(bar Water) *pineappleHelloCall {
+	return _c.Parent.OnHello(bar)
+}
+
+func (_c *pineappleCooCall) OnWorld() *pineappleWorldCall {
+	return _c.Parent.OnWorld()
+}
+
+func (_c *pineappleCooCall) OnCooRaw(bParam interface{}, cParam interface{}) *pineappleCooCall {
+	return _c.Parent.OnCooRaw(bParam, cParam)
+}
+
+func (_c *pineappleCooCall) OnGooRaw() *pineappleGooCall {
+	return _c.Parent.OnGooRaw()
+}
+
+func (_c *pineappleCooCall) OnHelloRaw(bar interface{}) *pineappleHelloCall {
+	return _c.Parent.OnHelloRaw(bar)
+}
+
+func (_c *pineappleCooCall) OnWorldRaw() *pineappleWorldCall {
+	return _c.Parent.OnWorldRaw()
 }
 
 func (_m *pineappleMock) Goo() (string, int, Water) {
@@ -94,6 +211,17 @@ func (_c *pineappleGooCall) TypedReturns(a string, b int, c Water) *pineappleGoo
 	return _c
 }
 
+func (_c *pineappleGooCall) TypedRun(fn func()) *pineappleGooCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		fn()
+	})
+	return _c
+}
+
+func (_c *pineappleGooCall) OnCoo(bParam string, cParam Water) *pineappleCooCall {
+	return _c.Parent.OnCoo(bParam, cParam)
+}
+
 func (_c *pineappleGooCall) OnGoo() *pineappleGooCall {
 	return _c.Parent.OnGoo()
 }
@@ -104,6 +232,10 @@ func (_c *pineappleGooCall) OnHello(bar Water) *pineappleHelloCall {
 
 func (_c *pineappleGooCall) OnWorld() *pineappleWorldCall {
 	return _c.Parent.OnWorld()
+}
+
+func (_c *pineappleGooCall) OnCooRaw(bParam interface{}, cParam interface{}) *pineappleCooCall {
+	return _c.Parent.OnCooRaw(bParam, cParam)
 }
 
 func (_c *pineappleGooCall) OnGooRaw() *pineappleGooCall {
@@ -193,6 +325,18 @@ func (_c *pineappleHelloCall) ReturnsFn(fn func(Water) string) *pineappleHelloCa
 	return _c
 }
 
+func (_c *pineappleHelloCall) TypedRun(fn func(Water)) *pineappleHelloCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_bar, _ := args.Get(0).(Water)
+		fn(_bar)
+	})
+	return _c
+}
+
+func (_c *pineappleHelloCall) OnCoo(bParam string, cParam Water) *pineappleCooCall {
+	return _c.Parent.OnCoo(bParam, cParam)
+}
+
 func (_c *pineappleHelloCall) OnGoo() *pineappleGooCall {
 	return _c.Parent.OnGoo()
 }
@@ -203,6 +347,10 @@ func (_c *pineappleHelloCall) OnHello(bar Water) *pineappleHelloCall {
 
 func (_c *pineappleHelloCall) OnWorld() *pineappleWorldCall {
 	return _c.Parent.OnWorld()
+}
+
+func (_c *pineappleHelloCall) OnCooRaw(bParam interface{}, cParam interface{}) *pineappleCooCall {
+	return _c.Parent.OnCooRaw(bParam, cParam)
 }
 
 func (_c *pineappleHelloCall) OnGooRaw() *pineappleGooCall {
@@ -283,6 +431,17 @@ func (_c *pineappleWorldCall) TypedReturns(a string) *pineappleWorldCall {
 	return _c
 }
 
+func (_c *pineappleWorldCall) TypedRun(fn func()) *pineappleWorldCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		fn()
+	})
+	return _c
+}
+
+func (_c *pineappleWorldCall) OnCoo(bParam string, cParam Water) *pineappleCooCall {
+	return _c.Parent.OnCoo(bParam, cParam)
+}
+
 func (_c *pineappleWorldCall) OnGoo() *pineappleGooCall {
 	return _c.Parent.OnGoo()
 }
@@ -293,6 +452,10 @@ func (_c *pineappleWorldCall) OnHello(bar Water) *pineappleHelloCall {
 
 func (_c *pineappleWorldCall) OnWorld() *pineappleWorldCall {
 	return _c.Parent.OnWorld()
+}
+
+func (_c *pineappleWorldCall) OnCooRaw(bParam interface{}, cParam interface{}) *pineappleCooCall {
+	return _c.Parent.OnCooRaw(bParam, cParam)
 }
 
 func (_c *pineappleWorldCall) OnGooRaw() *pineappleGooCall {
@@ -394,6 +557,14 @@ func (_c *coconutBooCall) TypedReturns(a time.Duration) *coconutBooCall {
 
 func (_c *coconutBooCall) ReturnsFn(fn func(*bytes.Buffer) time.Duration) *coconutBooCall {
 	_c.Call = _c.Return(fn)
+	return _c
+}
+
+func (_c *coconutBooCall) TypedRun(fn func(*bytes.Buffer)) *coconutBooCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_src, _ := args.Get(0).(*bytes.Buffer)
+		fn(_src)
+	})
 	return _c
 }
 
@@ -528,6 +699,14 @@ func (_c *coconutDooCall) ReturnsFn(fn func(time.Duration) time.Duration) *cocon
 	return _c
 }
 
+func (_c *coconutDooCall) TypedRun(fn func(time.Duration)) *coconutDooCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_src, _ := args.Get(0).(time.Duration)
+		fn(_src)
+	})
+	return _c
+}
+
 func (_c *coconutDooCall) OnBoo(src *bytes.Buffer) *coconutBooCall {
 	return _c.Parent.OnBoo(src)
 }
@@ -638,6 +817,16 @@ func (_c *coconutHooCall) Run(fn func(args mock.Arguments)) *coconutHooCall {
 
 func (_c *coconutHooCall) Maybe() *coconutHooCall {
 	_c.Call = _c.Call.Maybe()
+	return _c
+}
+
+func (_c *coconutHooCall) TypedRun(fn func(string, int, Water)) *coconutHooCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_aParam := args.String(0)
+		_bParam := args.Int(1)
+		_cParam, _ := args.Get(2).(Water)
+		fn(_aParam, _bParam, _cParam)
+	})
 	return _c
 }
 
@@ -773,6 +962,16 @@ func (_c *coconutJooCall) ReturnsFn(fn func(string, int, Water) (string, int)) *
 	return _c
 }
 
+func (_c *coconutJooCall) TypedRun(fn func(string, int, Water)) *coconutJooCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_aParam := args.String(0)
+		_bParam := args.Int(1)
+		_cParam, _ := args.Get(2).(Water)
+		fn(_aParam, _bParam, _cParam)
+	})
+	return _c
+}
+
 func (_c *coconutJooCall) OnBoo(src *bytes.Buffer) *coconutBooCall {
 	return _c.Parent.OnBoo(src)
 }
@@ -901,6 +1100,14 @@ func (_c *coconutKooCall) TypedReturns(a string) *coconutKooCall {
 
 func (_c *coconutKooCall) ReturnsFn(fn func(string) string) *coconutKooCall {
 	_c.Call = _c.Return(fn)
+	return _c
+}
+
+func (_c *coconutKooCall) TypedRun(fn func(string)) *coconutKooCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_src := args.String(0)
+		fn(_src)
+	})
 	return _c
 }
 
@@ -1035,6 +1242,14 @@ func (_c *coconutTooCall) ReturnsFn(fn func(string) time.Duration) *coconutTooCa
 	return _c
 }
 
+func (_c *coconutTooCall) TypedRun(fn func(string)) *coconutTooCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_src := args.String(0)
+		fn(_src)
+	})
+	return _c
+}
+
 func (_c *coconutTooCall) OnBoo(src *bytes.Buffer) *coconutBooCall {
 	return _c.Parent.OnBoo(src)
 }
@@ -1163,6 +1378,14 @@ func (_c *coconutVooCall) TypedReturns(a time.Duration) *coconutVooCall {
 
 func (_c *coconutVooCall) ReturnsFn(fn func(*module.Version) time.Duration) *coconutVooCall {
 	_c.Call = _c.Return(fn)
+	return _c
+}
+
+func (_c *coconutVooCall) TypedRun(fn func(*module.Version)) *coconutVooCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_src, _ := args.Get(0).(*module.Version)
+		fn(_src)
+	})
 	return _c
 }
 

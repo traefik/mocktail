@@ -1,6 +1,7 @@
 package a
 
 import (
+	"context"
 	"testing"
 )
 
@@ -12,9 +13,12 @@ func TestName(t *testing.T) {
 		OnHello(Water{}).TypedReturns("a").Once().
 		OnWorld().TypedReturns("a").Once().
 		OnGoo().TypedReturns("", 1, Water{}).Once().
+		OnCoo("", Water{}).TypedReturns(Water{}).
+		TypedRun(func(s string, water Water) {}).Once().
 		Parent
 
 	s.Hello(Water{})
 	s.World()
 	s.Goo()
+	s.Coo(context.Background(), "", Water{})
 }
