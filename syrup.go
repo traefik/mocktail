@@ -510,7 +510,13 @@ func writeMockBase(writer io.Writer, interfaceName string) error {
 }
 
 func quickGoImports(descPkg PackageDesc) []string {
-	imports := []string{"testing", "time", "", "github.com/stretchr/testify/mock"}
+	imports := []string{
+		"testing",                          // require by test
+		"time",                             // require by `WaitUntil(w <-chan time.Time)`
+		"",                                 // to separate std imports than the others
+		"github.com/stretchr/testify/mock", // require by mock
+	}
+
 	for imp := range descPkg.Imports {
 		imports = append(imports, imp)
 	}
@@ -548,4 +554,42 @@ func getResultName(tVar *types.Var, i int) string {
 		return fmt.Sprintf("_r%s%d", string(rune('a'+i)), i)
 	}
 	return tVar.Name()
+}
+
+// Writer is a wrapper around Print+ functions.
+type Writer struct {
+	writer io.Writer
+	err    error
+}
+
+// Err returns error from the other methods.
+func (w *Writer) Err() error {
+	return w.err
+}
+
+// Print formats using the default formats for its operands and writes to standard output.
+func (w *Writer) Print(a ...interface{}) {
+	if w.err != nil {
+		return
+	}
+
+	_, w.err = fmt.Fprint(w.writer, a...)
+}
+
+// Printf formats according to a format specifier and writes to standard output.
+func (w *Writer) Printf(pattern string, a ...interface{}) {
+	if w.err != nil {
+		return
+	}
+
+	_, w.err = fmt.Fprintf(w.writer, pattern, a...)
+}
+
+// Println formats using the default formats for its operands and writes to standard output.
+func (w *Writer) Println(a ...interface{}) {
+	if w.err != nil {
+		return
+	}
+
+	_, w.err = fmt.Fprintln(w.writer, a...)
 }

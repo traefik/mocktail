@@ -8,7 +8,6 @@ import (
 	"go/importer"
 	"go/token"
 	"go/types"
-	"io"
 	"io/fs"
 	"log"
 	"os"
@@ -58,13 +57,13 @@ func main() {
 		return
 	}
 
-	err = testifyWay(model)
+	err = generate(model)
 	if err != nil {
-		log.Fatal("testifyWay", err)
+		log.Fatal("generate", err)
 	}
 }
 
-//nolint:gocognit,gocyclo // The complexity is expected.
+//nolint:gocognit // The complexity is expected.
 func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 	root := filepath.Dir(modulePath)
 
@@ -95,32 +94,32 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 				continue
 			}
 
-			pkgName, err := filepath.Rel(root, filepath.Dir(fp))
-			if err != nil {
-				return err
-			}
-
 			i := strings.Index(line, commentTagPattern)
 			if i <= -1 {
 				continue
 			}
 
-			name := line[i+len(commentTagPattern):]
+			interfaceName := line[i+len(commentTagPattern):]
 
-			importPath := path.Clean(moduleName + "/" + pkgName)
+			pkgName, err := filepath.Rel(root, filepath.Dir(fp))
+			if err != nil {
+				return err
+			}
+
+			importPath := path.Join(moduleName, pkgName)
 
 			pkg, err := importR.Import(importPath)
 			if err != nil {
 				return fmt.Errorf("failed to import %q: %w", importPath, err)
 			}
 
-			lookup := pkg.Scope().Lookup(name)
+			lookup := pkg.Scope().Lookup(interfaceName)
 			if lookup == nil {
-				log.Printf("Unable to find: %s", name)
+				log.Printf("Unable to find: %s", interfaceName)
 				continue
 			}
 
-			interfaceDesc := InterfaceDesc{Name: name}
+			interfaceDesc := InterfaceDesc{Name: interfaceName}
 
 			interfaceType := lookup.Type().Underlying().(*types.Interface)
 
@@ -129,15 +128,8 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 
 				interfaceDesc.Methods = append(interfaceDesc.Methods, method)
 
-				signature := method.Type().(*types.Signature)
-
-				imports := getTupleImports(signature.Params())
-				imports = append(imports, getTupleImports(signature.Results())...)
-
-				for _, imp := range imports {
-					if imp != "" && imp != importPath {
-						packageDesc.Imports[imp] = struct{}{}
-					}
+				for _, imp := range getMethodImports(method, importPath) {
+					packageDesc.Imports[imp] = struct{}{}
 				}
 			}
 
@@ -157,11 +149,27 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 	return model, nil
 }
 
-func getTupleImports(tuple *types.Tuple) []string {
+func getMethodImports(method *types.Func, importPath string) []string {
+	signature := method.Type().(*types.Signature)
+
 	var imports []string
 
-	for i := 0; i < tuple.Len(); i++ {
-		imports = append(imports, getTypeImports(tuple.At(i).Type())...)
+	for _, imp := range getTupleImports(signature.Params(), signature.Results()) {
+		if imp != "" && imp != importPath {
+			imports = append(imports, imp)
+		}
+	}
+
+	return imports
+}
+
+func getTupleImports(tuples ...*types.Tuple) []string {
+	var imports []string
+
+	for _, tuple := range tuples {
+		for i := 0; i < tuple.Len(); i++ {
+			imports = append(imports, getTypeImports(tuple.At(i).Type())...)
+		}
 	}
 
 	return imports
@@ -198,7 +206,7 @@ func getTypeImports(t types.Type) []string {
 	}
 }
 
-func testifyWay(model map[string]PackageDesc) error {
+func generate(model map[string]PackageDesc) error {
 	for fp, pkgDesc := range model {
 		buffer := bytes.NewBufferString("")
 
@@ -257,42 +265,4 @@ func testifyWay(model map[string]PackageDesc) error {
 	}
 
 	return nil
-}
-
-// Writer is a wrapper around Print+ functions.
-type Writer struct {
-	writer io.Writer
-	err    error
-}
-
-// Err returns error from the other methods.
-func (w *Writer) Err() error {
-	return w.err
-}
-
-// Print formats using the default formats for its operands and writes to standard output.
-func (w *Writer) Print(a ...interface{}) {
-	if w.err != nil {
-		return
-	}
-
-	_, w.err = fmt.Fprint(w.writer, a...)
-}
-
-// Printf formats according to a format specifier and writes to standard output.
-func (w *Writer) Printf(pattern string, a ...interface{}) {
-	if w.err != nil {
-		return
-	}
-
-	_, w.err = fmt.Fprintf(w.writer, pattern, a...)
-}
-
-// Println formats using the default formats for its operands and writes to standard output.
-func (w *Writer) Println(a ...interface{}) {
-	if w.err != nil {
-		return
-	}
-
-	_, w.err = fmt.Fprintln(w.writer, a...)
 }
