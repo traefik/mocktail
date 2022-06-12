@@ -12,6 +12,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -22,6 +23,8 @@ const (
 )
 
 const contextType = "context.Context"
+
+const commentTagPattern = "// mocktail:"
 
 // PackageDesc represent a package.
 type PackageDesc struct {
@@ -67,7 +70,9 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 
 	model := make(map[string]PackageDesc)
 
-	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	importR := importer.ForCompiler(token.NewFileSet(), "source", nil)
+
+	err := filepath.WalkDir(root, func(fp string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -76,14 +81,12 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 			return nil
 		}
 
-		file, err := os.Open(path)
+		file, err := os.Open(fp)
 		if err != nil {
 			return err
 		}
 
 		packageDesc := PackageDesc{Imports: map[string]struct{}{}}
-
-		importR := importer.ForCompiler(token.NewFileSet(), "source", nil)
 
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
@@ -92,19 +95,19 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 				continue
 			}
 
-			pkgName, err := filepath.Rel(root, filepath.Dir(path))
+			pkgName, err := filepath.Rel(root, filepath.Dir(fp))
 			if err != nil {
 				return err
 			}
 
-			i := strings.Index(line, "// mocktail:")
+			i := strings.Index(line, commentTagPattern)
 			if i <= -1 {
 				continue
 			}
 
-			name := line[i+len("// mocktail:"):]
+			name := line[i+len(commentTagPattern):]
 
-			importPath := moduleName + "/" + pkgName
+			importPath := path.Clean(moduleName + "/" + pkgName)
 
 			pkg, err := importR.Import(importPath)
 			if err != nil {
@@ -132,7 +135,7 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 				imports = append(imports, getTupleImports(signature.Results())...)
 
 				for _, imp := range imports {
-					if imp != "" && imp != moduleName+"/"+pkgName {
+					if imp != "" && imp != importPath {
 						packageDesc.Imports[imp] = struct{}{}
 					}
 				}
@@ -142,7 +145,7 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 		}
 
 		if len(packageDesc.Interfaces) > 0 {
-			model[path] = packageDesc
+			model[fp] = packageDesc
 		}
 
 		return nil
@@ -196,17 +199,17 @@ func getTypeImports(t types.Type) []string {
 }
 
 func testifyWay(model map[string]PackageDesc) error {
-	for path, descPkg := range model {
+	for fp, pkgDesc := range model {
 		buffer := bytes.NewBufferString("")
 
-		pkg := filepath.Base(filepath.Dir(path))
+		pkg := filepath.Base(filepath.Dir(fp))
 
-		err := writeImports(buffer, pkg, descPkg)
+		err := writeImports(buffer, pkg, pkgDesc)
 		if err != nil {
 			return err
 		}
 
-		for _, interfaceDesc := range descPkg.Interfaces {
+		for _, interfaceDesc := range pkgDesc.Interfaces {
 			err = writeMockBase(buffer, interfaceDesc.Name)
 			if err != nil {
 				return err
@@ -243,7 +246,7 @@ func testifyWay(model map[string]PackageDesc) error {
 			return fmt.Errorf("source: %w", err)
 		}
 
-		out := filepath.Join(filepath.Dir(path), outputMockFile)
+		out := filepath.Join(filepath.Dir(fp), outputMockFile)
 
 		log.Println(out)
 

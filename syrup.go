@@ -132,7 +132,7 @@ func (s Syrup) mockedMethod(writer io.Writer) error {
 			argNames = append(argNames, name)
 		}
 
-		w.Print(" " + getTypeName(s.PackageName, param.Type()))
+		w.Print(" " + s.getTypeName(param.Type()))
 
 		if i+1 < params.Len() {
 			w.Print(", ")
@@ -148,7 +148,7 @@ func (s Syrup) mockedMethod(writer io.Writer) error {
 	}
 
 	for i := 0; i < results.Len(); i++ {
-		w.Print(getTypeName(s.PackageName, results.At(i).Type()))
+		w.Print(s.getTypeName(results.At(i).Type()))
 		if i+1 < results.Len() {
 			w.Print(", ")
 		}
@@ -179,7 +179,7 @@ func (s Syrup) mockedMethod(writer io.Writer) error {
 		case "string", "int", "bool", "error":
 			w.Printf("\t := _ret.%s(%d)\n", strcase.ToPascal(rType.String()), i)
 		default:
-			name := getTypeName(s.PackageName, rType)
+			name := s.getTypeName(rType)
 			w.Printf(", _ := _ret.Get(%d).(%s)\n", i, name)
 		}
 	}
@@ -227,7 +227,7 @@ func (s Syrup) methodOn(writer io.Writer) error {
 		w.Print(name)
 		argNames = append(argNames, name)
 
-		w.Print(" " + getTypeName(s.PackageName, param.Type()))
+		w.Print(" " + s.getTypeName(param.Type()))
 
 		if i+1 < params.Len() {
 			w.Print(", ")
@@ -342,7 +342,7 @@ func (s Syrup) typedReturns(writer io.Writer) error {
 	for i := 0; i < results.Len(); i++ {
 		rName := string(rune(int('a') + i))
 
-		w.Printf("%s %s", rName, getTypeName(s.PackageName, results.At(i).Type()))
+		w.Printf("%s %s", rName, s.getTypeName(results.At(i).Type()))
 		returnNames += rName
 
 		if i+1 < results.Len() {
@@ -385,7 +385,7 @@ func (s Syrup) callMethodsOn(writer io.Writer, methods []*types.Func) error {
 			w.Print(name)
 			argNames = append(argNames, name)
 
-			w.Print(" " + getTypeName(s.PackageName, param.Type()))
+			w.Print(" " + s.getTypeName(param.Type()))
 
 			if i+1 < params.Len() {
 				w.Print(", ")
@@ -444,6 +444,42 @@ func (s Syrup) callMethodOnRaw(writer io.Writer, methods []*types.Func) error {
 	return w.Err()
 }
 
+func (s Syrup) getTypeName(t types.Type) string {
+	switch v := t.(type) {
+	case *types.Basic:
+		return v.Name()
+
+	case *types.Slice:
+		return "[]" + s.getTypeName(v.Elem())
+
+	case *types.Map:
+		return "map[" + s.getTypeName(v.Key()) + "]" + s.getTypeName(v.Elem())
+
+	case *types.Named:
+		name := v.String()
+
+		i := strings.LastIndex(v.String(), "/")
+		if i > -1 {
+			name = name[i+1:]
+		}
+
+		if v.Obj() != nil && v.Obj().Pkg() != nil && v.Obj().Pkg().Name() == s.PackageName {
+			return name[len(s.PackageName)+1:]
+		}
+
+		return name
+
+	case *types.Pointer:
+		return "*" + s.getTypeName(v.Elem())
+
+	case *types.Interface:
+		return v.String()
+
+	default:
+		panic(fmt.Sprintf("OOPS %[1]T %[1]s", t))
+	}
+}
+
 func writeImports(writer io.Writer, pkg string, descPkg PackageDesc) error {
 	base := template.New("templateImports")
 
@@ -498,41 +534,6 @@ func quickGoImports(descPkg PackageDesc) []string {
 	})
 
 	return imports
-}
-
-func getTypeName(pkg string, t types.Type) string {
-	switch v := t.(type) {
-	case *types.Basic:
-		return v.Name()
-
-	case *types.Slice:
-		return "[]" + getTypeName(pkg, v.Elem())
-
-	case *types.Map:
-		return "map[" + getTypeName(pkg, v.Key()) + "]" + getTypeName(pkg, v.Elem())
-
-	case *types.Named:
-		i := strings.LastIndex(v.String(), "/")
-		if i <= -1 {
-			return v.String()
-		}
-
-		name := v.String()[i+1:]
-		if v.Obj().Pkg().Name() == pkg {
-			name = name[len(pkg)+1:]
-		}
-
-		return name
-
-	case *types.Pointer:
-		return "*" + getTypeName(pkg, v.Elem())
-
-	case *types.Interface:
-		return v.String()
-
-	default:
-		panic(fmt.Sprintf("OOPS %[1]T %[1]s", t))
-	}
 }
 
 func getParamName(tVar *types.Var, i int) string {
