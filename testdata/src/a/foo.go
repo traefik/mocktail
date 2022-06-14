@@ -16,14 +16,22 @@ type Pineapple interface {
 }
 
 type Coconut interface {
+	Boo(src *bytes.Buffer) time.Duration
+	Doo(src time.Duration) time.Duration
+	Foo(st Strawberry) string
+	Goo(st string) Strawberry
 	Hoo(string, int, Water)
 	Joo(string, int, Water) (string, int)
 	Koo(src string) (dst string)
-	Too(src string) time.Duration
-	Doo(src time.Duration) time.Duration
-	Boo(src *bytes.Buffer) time.Duration
-	Voo(src *module.Version) time.Duration
 	Loo(st string, values ...int) string
+	Too(src string) time.Duration
+	Voo(src *module.Version) time.Duration
+	Yoo(st string) interface{}
+	Zoo(st interface{}) string
 }
 
 type Water struct{}
+
+type Strawberry interface {
+	Bar(string) int
+}
