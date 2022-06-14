@@ -132,7 +132,7 @@ func (s Syrup) mockedMethod(writer io.Writer) error {
 			argNames = append(argNames, name)
 		}
 
-		w.Print(" " + s.getTypeName(param.Type()))
+		w.Print(" " + s.getTypeName(param.Type(), i == params.Len()-1))
 
 		if i+1 < params.Len() {
 			w.Print(", ")
@@ -148,7 +148,7 @@ func (s Syrup) mockedMethod(writer io.Writer) error {
 	}
 
 	for i := 0; i < results.Len(); i++ {
-		w.Print(s.getTypeName(results.At(i).Type()))
+		w.Print(s.getTypeName(results.At(i).Type(), false))
 		if i+1 < results.Len() {
 			w.Print(", ")
 		}
@@ -181,7 +181,7 @@ func (s Syrup) mockedMethod(writer io.Writer) error {
 		case "string", "int", "bool", "error":
 			w.Printf("\t := _ret.%s(%d)\n", strcase.ToPascal(rType.String()), i)
 		default:
-			name := s.getTypeName(rType)
+			name := s.getTypeName(rType, false)
 			w.Printf(", _ := _ret.Get(%d).(%s)\n", i, name)
 		}
 	}
@@ -211,7 +211,11 @@ func (s Syrup) writeReturnsFnCaller(w *Writer, argNames []string, params, result
 	if len(argNames) > 0 && results.Len() > 0 {
 		w.Println()
 		w.Printf("\tif _rf, ok := _ret.Get(0).(%s); ok {\n", s.createFuncSignature(params, results))
-		w.Printf("\t\treturn _rf(%s)\n", strings.Join(argNames, ", "))
+		w.Printf("\t\treturn _rf(%s", strings.Join(argNames, ", "))
+		if s.Signature.Variadic() {
+			w.Print("...")
+		}
+		w.Println(")")
 		w.Println("\t}")
 	}
 }
@@ -224,7 +228,7 @@ func (s Syrup) createFuncSignature(params, results *types.Tuple) string {
 			continue
 		}
 
-		fnSign += s.getTypeName(param.Type())
+		fnSign += s.getTypeName(param.Type(), i == params.Len()-1)
 
 		if i+1 < params.Len() {
 			fnSign += ", "
@@ -236,7 +240,7 @@ func (s Syrup) createFuncSignature(params, results *types.Tuple) string {
 		fnSign += "("
 		for i := 0; i < results.Len(); i++ {
 			rType := results.At(i).Type()
-			fnSign += s.getTypeName(rType)
+			fnSign += s.getTypeName(rType, false)
 			if i+1 < results.Len() {
 				fnSign += ", "
 			}
@@ -269,7 +273,7 @@ func (s Syrup) methodOn(writer io.Writer) error {
 		w.Print(name)
 		argNames = append(argNames, name)
 
-		w.Print(" " + s.getTypeName(param.Type()))
+		w.Print(" " + s.getTypeName(param.Type(), i == params.Len()-1))
 
 		if i+1 < params.Len() {
 			w.Print(", ")
@@ -394,7 +398,7 @@ func (s Syrup) typedReturns(writer io.Writer) error {
 	for i := 0; i < results.Len(); i++ {
 		rName := string(rune(int('a') + i))
 
-		w.Printf("%s %s", rName, s.getTypeName(results.At(i).Type()))
+		w.Printf("%s %s", rName, s.getTypeName(results.At(i).Type(), false))
 		returnNames += rName
 
 		if i+1 < results.Len() {
@@ -434,19 +438,24 @@ func (s Syrup) typedRun(writer io.Writer) error {
 		}
 
 		paramName := "_" + getParamName(param, i)
+
 		paramNames = append(paramNames, paramName)
 
 		switch pType.String() {
 		case "string", "int", "bool", "error":
 			w.Printf("\t\t%s := args.%s(%d)\n", paramName, strcase.ToPascal(pType.String()), pos)
 		default:
-			w.Printf("\t\t%s, _ := args.Get(%d).(%s)\n", paramName, pos, s.getTypeName(pType))
+			w.Printf("\t\t%s, _ := args.Get(%d).(%s)\n", paramName, pos, s.getTypeName(pType, false))
 		}
 
 		pos++
 	}
 
-	w.Printf("\t\tfn(%s)\n", strings.Join(paramNames, ", "))
+	w.Printf("\t\tfn(%s", strings.Join(paramNames, ", "))
+	if s.Signature.Variadic() {
+		w.Print("...")
+	}
+	w.Println(")")
 
 	w.Println("\t})")
 	w.Println("\treturn _c")
@@ -506,7 +515,7 @@ func (s Syrup) callMethodsOn(writer io.Writer, methods []*types.Func) error {
 			w.Print(name)
 			argNames = append(argNames, name)
 
-			w.Print(" " + s.getTypeName(param.Type()))
+			w.Print(" " + s.getTypeName(param.Type(), i == params.Len()-1))
 
 			if i+1 < params.Len() {
 				w.Print(", ")
@@ -515,7 +524,11 @@ func (s Syrup) callMethodsOn(writer io.Writer, methods []*types.Func) error {
 
 		w.Printf(") *%s%sCall {\n", strcase.ToGoCamel(s.InterfaceName), method.Name())
 
-		w.Printf("\treturn _c.Parent.On%s(%s)\n", method.Name(), strings.Join(argNames, ", "))
+		w.Printf("\treturn _c.Parent.On%s(%s", method.Name(), strings.Join(argNames, ", "))
+		if sign.Variadic() {
+			w.Print("...")
+		}
+		w.Println(")")
 		w.Println("}")
 		w.Println()
 	}
@@ -565,16 +578,20 @@ func (s Syrup) callMethodOnRaw(writer io.Writer, methods []*types.Func) error {
 	return w.Err()
 }
 
-func (s Syrup) getTypeName(t types.Type) string {
+func (s Syrup) getTypeName(t types.Type, last bool) string {
 	switch v := t.(type) {
 	case *types.Basic:
 		return v.Name()
 
 	case *types.Slice:
-		return "[]" + s.getTypeName(v.Elem())
+		if s.Signature.Variadic() && last {
+			return "..." + s.getTypeName(v.Elem(), false)
+		}
+
+		return "[]" + s.getTypeName(v.Elem(), false)
 
 	case *types.Map:
-		return "map[" + s.getTypeName(v.Key()) + "]" + s.getTypeName(v.Elem())
+		return "map[" + s.getTypeName(v.Key(), false) + "]" + s.getTypeName(v.Elem(), false)
 
 	case *types.Named:
 		name := v.String()
@@ -591,7 +608,7 @@ func (s Syrup) getTypeName(t types.Type) string {
 		return name
 
 	case *types.Pointer:
-		return "*" + s.getTypeName(v.Elem())
+		return "*" + s.getTypeName(v.Elem(), false)
 
 	case *types.Interface:
 		return v.String()

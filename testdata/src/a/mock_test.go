@@ -21,4 +21,10 @@ func TestName(t *testing.T) {
 	s.World()
 	s.Goo()
 	s.Coo(context.Background(), "", Water{})
+
+	var c Coconut = newCoconutMock(t).
+		OnLoo("a", 1, 2).TypedReturns("foo").Once().
+		Parent
+
+	c.Loo("a", 1, 2)
 }

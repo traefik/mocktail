@@ -23,6 +23,7 @@ type Coconut interface {
 	Doo(src time.Duration) time.Duration
 	Boo(src *bytes.Buffer) time.Duration
 	Voo(src *module.Version) time.Duration
+	Loo(st string, values ...int) string
 }
 
 type Water struct{}
