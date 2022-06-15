@@ -1,5 +1,7 @@
 # Mocktail
 
+![](./mocktail.png)
+
 Naive code generator that create mock implementation using `testify.mock`.
 
 Unlike [mockery](https://github.com/vektra/mockery), Mocktail generates typed methods on mocks.
