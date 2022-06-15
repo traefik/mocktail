@@ -7,6 +7,8 @@ import (
 
 // mocktail:Pineapple
 // mocktail:Coconut
+// mocktail:b.Carrot
+// mocktail-:fmt.Stringer
 
 func TestName(t *testing.T) {
 	var s Pineapple = newPineappleMock(t).

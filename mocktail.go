@@ -63,7 +63,7 @@ func main() {
 	}
 }
 
-//nolint:gocognit // The complexity is expected.
+//nolint:gocognit,gocyclo // The complexity is expected.
 func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 	root := filepath.Dir(modulePath)
 
@@ -101,11 +101,20 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 
 			interfaceName := line[i+len(commentTagPattern):]
 
-			pkgName, err := filepath.Rel(root, filepath.Dir(fp))
+			filePkgName, err := filepath.Rel(root, filepath.Dir(fp))
 			if err != nil {
 				return err
 			}
 
+			var pkgName string
+			if index := strings.LastIndex(interfaceName, "."); index > 0 {
+				pkgName = interfaceName[:index]
+				interfaceName = interfaceName[index+1:]
+			} else {
+				pkgName = filePkgName
+			}
+
+			importPathFile := path.Join(moduleName, filePkgName)
 			importPath := path.Join(moduleName, pkgName)
 
 			pkg, err := importR.Import(importPath)
@@ -128,7 +137,7 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 
 				interfaceDesc.Methods = append(interfaceDesc.Methods, method)
 
-				for _, imp := range getMethodImports(method, importPath) {
+				for _, imp := range getMethodImports(method, importPathFile) {
 					packageDesc.Imports[imp] = struct{}{}
 				}
 			}

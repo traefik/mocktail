@@ -23,3 +23,5 @@ Replacement pattern:
 
 $1$2(
 ```
+
+Notes: Mocktail can only generate mock for interface inside the module itself (not from stdlib or dependencies)
