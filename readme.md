@@ -1,6 +1,11 @@
 # Mocktail
 
-![](./mocktail.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./mocktail-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="./mocktail.png">
+  <img alt="Mocktail logo" src="./mocktail.png">
+</picture>
+
 
 Naive code generator that create mock implementation using `testify.mock`.
 
