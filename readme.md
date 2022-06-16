@@ -1,6 +1,6 @@
 # Mocktail
 
-<p  align="center">
+<p align="center">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="./mocktail-dark.png">
       <source media="(prefers-color-scheme: light)" srcset="./mocktail.png">
