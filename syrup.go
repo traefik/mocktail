@@ -92,7 +92,7 @@ func (_c *{{ .InterfaceName | ToGoCamel }}{{ .MethodName }}Call) Maybe() *{{ .In
 
 // Syrup generates method mocks and mock.Call wrapper.
 type Syrup struct {
-	PackageName   string
+	ModuleName    string
 	InterfaceName string
 	Method        *types.Func
 	Signature     *types.Signature
@@ -601,8 +601,11 @@ func (s Syrup) getTypeName(t types.Type, last bool) string {
 			name = name[i+1:]
 		}
 
-		if v.Obj() != nil && v.Obj().Pkg() != nil && v.Obj().Pkg().Name() == s.PackageName {
-			return name[len(s.PackageName)+1:]
+		if v.Obj() != nil && v.Obj().Pkg() != nil {
+			if v.Obj().Pkg().Path() == s.ModuleName {
+				i := strings.Index(name, ".")
+				return name[i+1:]
+			}
 		}
 
 		return name
@@ -618,7 +621,7 @@ func (s Syrup) getTypeName(t types.Type, last bool) string {
 	}
 }
 
-func writeImports(writer io.Writer, pkg string, descPkg PackageDesc) error {
+func writeImports(writer io.Writer, descPkg PackageDesc) error {
 	base := template.New("templateImports")
 
 	tmpl, err := base.Parse(templateImports)
@@ -627,7 +630,7 @@ func writeImports(writer io.Writer, pkg string, descPkg PackageDesc) error {
 	}
 
 	data := map[string]interface{}{
-		"Name":    pkg,
+		"Name":    descPkg.PkgName,
 		"Imports": quickGoImports(descPkg),
 	}
 	return tmpl.Execute(writer, data)

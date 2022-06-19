@@ -27,6 +27,7 @@ const commentTagPattern = "// mocktail:"
 
 // PackageDesc represent a package.
 type PackageDesc struct {
+	PkgName    string
 	Imports    map[string]struct{}
 	Interfaces []InterfaceDesc
 }
@@ -57,7 +58,7 @@ func main() {
 		return
 	}
 
-	err = generate(model)
+	err = generate(model, moduleName)
 	if err != nil {
 		log.Fatal("generate", err)
 	}
@@ -126,6 +127,10 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 			if lookup == nil {
 				log.Printf("Unable to find: %s", interfaceName)
 				continue
+			}
+
+			if packageDesc.PkgName == "" {
+				packageDesc.PkgName = lookup.Pkg().Name()
 			}
 
 			interfaceDesc := InterfaceDesc{Name: interfaceName}
@@ -215,13 +220,11 @@ func getTypeImports(t types.Type) []string {
 	}
 }
 
-func generate(model map[string]PackageDesc) error {
+func generate(model map[string]PackageDesc, moduleName string) error {
 	for fp, pkgDesc := range model {
 		buffer := bytes.NewBufferString("")
 
-		pkg := filepath.Base(filepath.Dir(fp))
-
-		err := writeImports(buffer, pkg, pkgDesc)
+		err := writeImports(buffer, pkgDesc)
 		if err != nil {
 			return err
 		}
@@ -238,7 +241,7 @@ func generate(model map[string]PackageDesc) error {
 				signature := method.Type().(*types.Signature)
 
 				syrup := Syrup{
-					PackageName:   pkg,
+					ModuleName:    moduleName,
 					InterfaceName: interfaceDesc.Name,
 					Method:        method,
 					Signature:     signature,
