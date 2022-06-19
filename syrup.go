@@ -652,11 +652,12 @@ func writeMockBase(writer io.Writer, interfaceName string) error {
 
 func quickGoImports(descPkg PackageDesc) []string {
 	imports := []string{
-		"testing",                          // require by test
-		"time",                             // require by `WaitUntil(w <-chan time.Time)`
-		"",                                 // to separate std imports than the others
-		"github.com/stretchr/testify/mock", // require by mock
+		"", // to separate std imports than the others
 	}
+
+	descPkg.Imports["testing"] = struct{}{}                          // require by test
+	descPkg.Imports["time"] = struct{}{}                             // require by `WaitUntil(w <-chan time.Time)`
+	descPkg.Imports["github.com/stretchr/testify/mock"] = struct{}{} // require by mock
 
 	for imp := range descPkg.Imports {
 		imports = append(imports, imp)
