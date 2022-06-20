@@ -223,6 +223,9 @@ func getTypeImports(t types.Type) []string {
 	case *types.Interface:
 		return []string{""}
 
+	case *types.Signature:
+		return getTupleImports(v.Params(), v.Results())
+
 	default:
 		panic(fmt.Sprintf("OOPS %[1]T %[1]s", t))
 	}

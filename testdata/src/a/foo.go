@@ -28,6 +28,7 @@ type Coconut interface {
 	Voo(src *module.Version) time.Duration
 	Yoo(st string) interface{}
 	Zoo(st interface{}) string
+	Moo(fn func(st, stban Strawberry) Pineapple) string
 }
 
 type Water struct{}

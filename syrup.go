@@ -271,7 +271,12 @@ func (s Syrup) methodOn(writer io.Writer) error {
 		name := getParamName(param, i)
 
 		w.Print(name)
-		argNames = append(argNames, name)
+
+		if _, isSignature := param.Type().(*types.Signature); isSignature {
+			argNames = append(argNames, " mock.Anything")
+		} else {
+			argNames = append(argNames, name)
+		}
 
 		w.Print(" " + s.getTypeName(param.Type(), i == params.Len()-1))
 
@@ -312,7 +317,12 @@ func (s Syrup) methodOnRaw(writer io.Writer) error {
 		name := getParamName(param, i)
 
 		w.Print(name)
-		argNames = append(argNames, name)
+
+		if _, isSignature := param.Type().(*types.Signature); isSignature {
+			argNames = append(argNames, " mock.Anything")
+		} else {
+			argNames = append(argNames, name)
+		}
 
 		w.Print(" interface{}")
 
@@ -616,9 +626,29 @@ func (s Syrup) getTypeName(t types.Type, last bool) string {
 	case *types.Interface:
 		return v.String()
 
+	case *types.Signature:
+		params := strings.Join(s.getTupleTypes(v.Params()), ",")
+
+		if v.Results().Len() == 0 {
+			return fmt.Sprintf("func (%s) ", params)
+		}
+
+		results := strings.Join(s.getTupleTypes(v.Results()), ",")
+		return fmt.Sprintf("func (%s) (%s)", params, results)
 	default:
 		panic(fmt.Sprintf("OOPS %[1]T %[1]s", t))
 	}
+}
+
+func (s Syrup) getTupleTypes(t *types.Tuple) []string {
+	var tupleTypes []string
+	for i := 0; i < t.Len(); i++ {
+		param := t.At(i)
+
+		tupleTypes = append(tupleTypes, s.getTypeName(param.Type(), false))
+	}
+
+	return tupleTypes
 }
 
 func writeImports(writer io.Writer, descPkg PackageDesc) error {
