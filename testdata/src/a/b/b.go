@@ -1,12 +1,12 @@
 package b
 
-// import "a"
-//
-// type Carrot interface {
-// 	Bar(string) *Potato
-// 	Bur(string) *a.Coconut
-// }
-//
-// type Potato struct {
-// 	Name string
-// }
+import "a"
+
+type Carrot interface {
+	Bar(string) *Potato
+	Bur(string) *a.Coconut
+}
+
+type Potato struct {
+	Name string
+}

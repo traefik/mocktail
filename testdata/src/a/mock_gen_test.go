@@ -3,6 +3,7 @@
 package a
 
 import (
+	"a/b"
 	"bytes"
 	"context"
 	"testing"
@@ -2619,4 +2620,217 @@ func (_c *coconutZooCall) OnYooRaw(st interface{}) *coconutYooCall {
 
 func (_c *coconutZooCall) OnZooRaw(st interface{}) *coconutZooCall {
 	return _c.Parent.OnZooRaw(st)
+}
+
+// carrotMock mock of Carrot.
+type carrotMock struct{ mock.Mock }
+
+// newCarrotMock creates a new carrotMock.
+func newCarrotMock(tb testing.TB) *carrotMock {
+	tb.Helper()
+
+	m := &carrotMock{}
+	m.Mock.Test(tb)
+
+	tb.Cleanup(func() { m.AssertExpectations(tb) })
+
+	return m
+}
+
+func (_m *carrotMock) Bar(aParam string) *b.Potato {
+	_ret := _m.Called(aParam)
+
+	if _rf, ok := _ret.Get(0).(func(string) *b.Potato); ok {
+		return _rf(aParam)
+	}
+
+	_ra0, _ := _ret.Get(0).(*b.Potato)
+
+	return _ra0
+}
+
+func (_m *carrotMock) OnBar(aParam string) *carrotBarCall {
+	return &carrotBarCall{Call: _m.Mock.On("Bar", aParam), Parent: _m}
+}
+
+func (_m *carrotMock) OnBarRaw(aParam interface{}) *carrotBarCall {
+	return &carrotBarCall{Call: _m.Mock.On("Bar", aParam), Parent: _m}
+}
+
+type carrotBarCall struct {
+	*mock.Call
+	Parent *carrotMock
+}
+
+func (_c *carrotBarCall) Panic(msg string) *carrotBarCall {
+	_c.Call = _c.Call.Panic(msg)
+	return _c
+}
+
+func (_c *carrotBarCall) Once() *carrotBarCall {
+	_c.Call = _c.Call.Once()
+	return _c
+}
+
+func (_c *carrotBarCall) Twice() *carrotBarCall {
+	_c.Call = _c.Call.Twice()
+	return _c
+}
+
+func (_c *carrotBarCall) Times(i int) *carrotBarCall {
+	_c.Call = _c.Call.Times(i)
+	return _c
+}
+
+func (_c *carrotBarCall) WaitUntil(w <-chan time.Time) *carrotBarCall {
+	_c.Call = _c.Call.WaitUntil(w)
+	return _c
+}
+
+func (_c *carrotBarCall) After(d time.Duration) *carrotBarCall {
+	_c.Call = _c.Call.After(d)
+	return _c
+}
+
+func (_c *carrotBarCall) Run(fn func(args mock.Arguments)) *carrotBarCall {
+	_c.Call = _c.Call.Run(fn)
+	return _c
+}
+
+func (_c *carrotBarCall) Maybe() *carrotBarCall {
+	_c.Call = _c.Call.Maybe()
+	return _c
+}
+
+func (_c *carrotBarCall) TypedReturns(a *b.Potato) *carrotBarCall {
+	_c.Call = _c.Return(a)
+	return _c
+}
+
+func (_c *carrotBarCall) ReturnsFn(fn func(string) *b.Potato) *carrotBarCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
+func (_c *carrotBarCall) TypedRun(fn func(string)) *carrotBarCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_aParam := args.String(0)
+		fn(_aParam)
+	})
+	return _c
+}
+
+func (_c *carrotBarCall) OnBar(aParam string) *carrotBarCall {
+	return _c.Parent.OnBar(aParam)
+}
+
+func (_c *carrotBarCall) OnBur(aParam string) *carrotBurCall {
+	return _c.Parent.OnBur(aParam)
+}
+
+func (_c *carrotBarCall) OnBarRaw(aParam interface{}) *carrotBarCall {
+	return _c.Parent.OnBarRaw(aParam)
+}
+
+func (_c *carrotBarCall) OnBurRaw(aParam interface{}) *carrotBurCall {
+	return _c.Parent.OnBurRaw(aParam)
+}
+
+func (_m *carrotMock) Bur(aParam string) *Coconut {
+	_ret := _m.Called(aParam)
+
+	if _rf, ok := _ret.Get(0).(func(string) *Coconut); ok {
+		return _rf(aParam)
+	}
+
+	_ra0, _ := _ret.Get(0).(*Coconut)
+
+	return _ra0
+}
+
+func (_m *carrotMock) OnBur(aParam string) *carrotBurCall {
+	return &carrotBurCall{Call: _m.Mock.On("Bur", aParam), Parent: _m}
+}
+
+func (_m *carrotMock) OnBurRaw(aParam interface{}) *carrotBurCall {
+	return &carrotBurCall{Call: _m.Mock.On("Bur", aParam), Parent: _m}
+}
+
+type carrotBurCall struct {
+	*mock.Call
+	Parent *carrotMock
+}
+
+func (_c *carrotBurCall) Panic(msg string) *carrotBurCall {
+	_c.Call = _c.Call.Panic(msg)
+	return _c
+}
+
+func (_c *carrotBurCall) Once() *carrotBurCall {
+	_c.Call = _c.Call.Once()
+	return _c
+}
+
+func (_c *carrotBurCall) Twice() *carrotBurCall {
+	_c.Call = _c.Call.Twice()
+	return _c
+}
+
+func (_c *carrotBurCall) Times(i int) *carrotBurCall {
+	_c.Call = _c.Call.Times(i)
+	return _c
+}
+
+func (_c *carrotBurCall) WaitUntil(w <-chan time.Time) *carrotBurCall {
+	_c.Call = _c.Call.WaitUntil(w)
+	return _c
+}
+
+func (_c *carrotBurCall) After(d time.Duration) *carrotBurCall {
+	_c.Call = _c.Call.After(d)
+	return _c
+}
+
+func (_c *carrotBurCall) Run(fn func(args mock.Arguments)) *carrotBurCall {
+	_c.Call = _c.Call.Run(fn)
+	return _c
+}
+
+func (_c *carrotBurCall) Maybe() *carrotBurCall {
+	_c.Call = _c.Call.Maybe()
+	return _c
+}
+
+func (_c *carrotBurCall) TypedReturns(a *Coconut) *carrotBurCall {
+	_c.Call = _c.Return(a)
+	return _c
+}
+
+func (_c *carrotBurCall) ReturnsFn(fn func(string) *Coconut) *carrotBurCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
+func (_c *carrotBurCall) TypedRun(fn func(string)) *carrotBurCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_aParam := args.String(0)
+		fn(_aParam)
+	})
+	return _c
+}
+
+func (_c *carrotBurCall) OnBar(aParam string) *carrotBarCall {
+	return _c.Parent.OnBar(aParam)
+}
+
+func (_c *carrotBurCall) OnBur(aParam string) *carrotBurCall {
+	return _c.Parent.OnBur(aParam)
+}
+
+func (_c *carrotBurCall) OnBarRaw(aParam interface{}) *carrotBarCall {
+	return _c.Parent.OnBarRaw(aParam)
+}
+
+func (_c *carrotBurCall) OnBurRaw(aParam interface{}) *carrotBurCall {
+	return _c.Parent.OnBurRaw(aParam)
 }
