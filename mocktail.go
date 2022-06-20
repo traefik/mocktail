@@ -77,7 +77,15 @@ func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
 			return err
 		}
 
-		if d.IsDir() || d.Name() != srcMockFile {
+		if d.IsDir() {
+			if d.Name() == "testdata" || d.Name() == "vendor" {
+				return filepath.SkipDir
+			}
+
+			return nil
+		}
+
+		if d.Name() != srcMockFile {
 			return nil
 		}
 
