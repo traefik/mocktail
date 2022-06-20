@@ -272,8 +272,8 @@ func (s Syrup) methodOn(writer io.Writer) error {
 
 		w.Print(name)
 
-		if _, isSignature := param.Type().(*types.Signature); isSignature {
-			argNames = append(argNames, " mock.Anything")
+		if _, ok := param.Type().(*types.Signature); ok {
+			argNames = append(argNames, "mock.Anything")
 		} else {
 			argNames = append(argNames, name)
 		}
@@ -318,8 +318,8 @@ func (s Syrup) methodOnRaw(writer io.Writer) error {
 
 		w.Print(name)
 
-		if _, isSignature := param.Type().(*types.Signature); isSignature {
-			argNames = append(argNames, " mock.Anything")
+		if _, ok := param.Type().(*types.Signature); ok {
+			argNames = append(argNames, "mock.Anything")
 		} else {
 			argNames = append(argNames, name)
 		}
@@ -627,14 +627,14 @@ func (s Syrup) getTypeName(t types.Type, last bool) string {
 		return v.String()
 
 	case *types.Signature:
-		params := strings.Join(s.getTupleTypes(v.Params()), ",")
+		fn := "func(" + strings.Join(s.getTupleTypes(v.Params()), ",") + ")"
 
-		if v.Results().Len() == 0 {
-			return fmt.Sprintf("func (%s) ", params)
+		if v.Results().Len() > 0 {
+			fn += " (" + strings.Join(s.getTupleTypes(v.Results()), ",") + ")"
 		}
 
-		results := strings.Join(s.getTupleTypes(v.Results()), ",")
-		return fmt.Sprintf("func (%s) (%s)", params, results)
+		return fn
+
 	default:
 		panic(fmt.Sprintf("OOPS %[1]T %[1]s", t))
 	}
