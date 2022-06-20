@@ -24,9 +24,15 @@ func TestName(t *testing.T) {
 	s.Goo()
 	s.Coo(context.Background(), "", Water{})
 
+	fn := func(st Strawberry, stban Strawberry) Pineapple {
+		return s
+	}
+
 	var c Coconut = newCoconutMock(t).
 		OnLoo("a", 1, 2).TypedReturns("foo").Once().
+		OnMoo(fn).TypedReturns("").Once().
 		Parent
 
 	c.Loo("a", 1, 2)
+	c.Moo(fn)
 }
