@@ -1,0 +1,59 @@
+project_name: mocktail
+
+builds:
+  - binary: mocktail
+    goos:
+      - windows
+      - darwin
+      - linux
+      - freebsd
+      - openbsd
+    goarch:
+      - amd64
+      - 386
+      - arm
+      - arm64
+    goarm:
+      - 7
+
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: openbsd
+        goarch: arm
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^doc:'
+      - '^chore:'
+      - '^chore(deps):'
+      - '^test:'
+      - '^tests:'
+
+archives:
+  - id: mocktail
+    name_template: '{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm}}v{{ .Arm }}{{ end }}'
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+
+brews:
+  - tap:
+      owner: traefik
+      name: homebrew-tap
+    commit_author:
+      name: traefiker
+      email: 30906710+traefiker@users.noreply.github.com
+    folder: Formula
+    homepage: https://github.com/traefik/mocktail
+    description: |
+      Naive code generator that create mock implementation using testify.mock.
+    test: |
+      system "echo 0"
+
