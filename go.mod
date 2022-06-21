@@ -1,6 +1,6 @@
 module github.com/traefik/mocktail
 
-go 1.17
+go 1.18
 
 require (
 	github.com/ettle/strcase v0.1.1
