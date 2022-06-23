@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/hexops/gotextdiff"
@@ -15,6 +16,10 @@ import (
 )
 
 func TestMocktail(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip(runtime.GOOS)
+	}
+
 	testRoot := "./testdata/src"
 
 	dir, err := os.ReadDir(testRoot)
