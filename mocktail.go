@@ -40,28 +40,19 @@ type InterfaceDesc struct {
 }
 
 func main() {
-	modulePath, err := getModulePath(os.Getenv("MOCKTAIL_TEST_PATH"))
+	info, err := getModuleInfo(os.Getenv("MOCKTAIL_TEST_PATH"))
 	if err != nil {
 		log.Fatal("get module path", err)
 	}
 
-	moduleName, err := getModuleName(modulePath)
-	if err != nil {
-		log.Fatal("get module name", err)
-	}
-
-	root := filepath.Dir(modulePath)
-
-	// moduleName: github.com/traefik/mocktail
-	// modulePath: /home/ldez/go/src/github.com/traefik/mocktail/go.mod
-	// root: /home/ldez/go/src/github.com/traefik/mocktail
+	root := info.Dir
 
 	err = os.Chdir(root)
 	if err != nil {
 		log.Fatalf("Chdir: %v", err)
 	}
 
-	model, err := walk(root, moduleName)
+	model, err := walk(root, info.Path)
 	if err != nil {
 		log.Fatalf("walk: %v", err)
 	}
@@ -120,21 +111,19 @@ func walk(root, moduleName string) (map[string]PackageDesc, error) {
 
 			interfaceName := line[i+len(commentTagPattern):]
 
-			filePkgName, err := filepath.Rel(root, filepath.Dir(fp))
-			if err != nil {
-				return err
-			}
-
-			var pkgName string
+			var importPath string
 			if index := strings.LastIndex(interfaceName, "."); index > 0 {
-				pkgName = interfaceName[:index]
+				importPath = path.Join(moduleName, interfaceName[:index])
+
 				interfaceName = interfaceName[index+1:]
 			} else {
-				pkgName = filePkgName
-			}
+				filePkgName, err := filepath.Rel(root, filepath.Dir(fp))
+				if err != nil {
+					return err
+				}
 
-			importPathFile := path.Join(moduleName, filePkgName)
-			importPath := path.Join(moduleName, pkgName)
+				importPath = path.Join(moduleName, filePkgName)
+			}
 
 			pkg, err := importR.Import(importPath)
 			if err != nil {
@@ -161,7 +150,7 @@ func walk(root, moduleName string) (map[string]PackageDesc, error) {
 
 				interfaceDesc.Methods = append(interfaceDesc.Methods, method)
 
-				for _, imp := range getMethodImports(method, importPathFile) {
+				for _, imp := range getMethodImports(method, packageDesc.PkgPath) {
 					packageDesc.Imports[imp] = struct{}{}
 				}
 			}
