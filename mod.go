@@ -19,9 +19,12 @@ type modInfo struct {
 	Main      bool   `json:"Main"`
 }
 
-func getModulePath() (string, error) {
+func getModulePath(dir string) (string, error) {
 	// https://github.com/golang/go/issues/44753#issuecomment-790089020
 	cmd := exec.Command("go", "list", "-m", "-json")
+	if dir != "" {
+		cmd.Dir = dir
+	}
 
 	raw, err := cmd.CombinedOutput()
 	if err != nil {

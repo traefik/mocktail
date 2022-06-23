@@ -40,7 +40,7 @@ type InterfaceDesc struct {
 }
 
 func main() {
-	modulePath, err := getModulePath()
+	modulePath, err := getModulePath(os.Getenv("MOCKTAIL_TEST_PATH"))
 	if err != nil {
 		log.Fatal("get module path", err)
 	}
@@ -50,9 +50,20 @@ func main() {
 		log.Fatal("get module name", err)
 	}
 
-	model, err := walk(modulePath, moduleName)
+	root := filepath.Dir(modulePath)
+
+	// moduleName: github.com/traefik/mocktail
+	// modulePath: /home/ldez/go/src/github.com/traefik/mocktail/go.mod
+	// root: /home/ldez/go/src/github.com/traefik/mocktail
+
+	err = os.Chdir(root)
 	if err != nil {
-		log.Fatal("walk", err)
+		log.Fatalf("Chdir: %v", err)
+	}
+
+	model, err := walk(root, moduleName)
+	if err != nil {
+		log.Fatalf("walk: %v", err)
 	}
 
 	if len(model) == 0 {
@@ -61,14 +72,12 @@ func main() {
 
 	err = generate(model)
 	if err != nil {
-		log.Fatal("generate", err)
+		log.Fatalf("generate: %v", err)
 	}
 }
 
 //nolint:gocognit,gocyclo // The complexity is expected.
-func walk(modulePath, moduleName string) (map[string]PackageDesc, error) {
-	root := filepath.Dir(modulePath)
-
+func walk(root, moduleName string) (map[string]PackageDesc, error) {
 	model := make(map[string]PackageDesc)
 
 	importR := importer.ForCompiler(token.NewFileSet(), "source", nil)
