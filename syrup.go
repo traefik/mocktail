@@ -92,7 +92,7 @@ func (_c *{{ .InterfaceName | ToGoCamel }}{{ .MethodName }}Call) Maybe() *{{ .In
 
 // Syrup generates method mocks and mock.Call wrapper.
 type Syrup struct {
-	ModuleName    string
+	PkgPath       string
 	InterfaceName string
 	Method        *types.Func
 	Signature     *types.Signature
@@ -612,7 +612,7 @@ func (s Syrup) getTypeName(t types.Type, last bool) string {
 		}
 
 		if v.Obj() != nil && v.Obj().Pkg() != nil {
-			if v.Obj().Pkg().Path() == s.ModuleName {
+			if v.Obj().Pkg().Path() == s.PkgPath {
 				i := strings.Index(name, ".")
 				return name[i+1:]
 			}
