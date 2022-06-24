@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/ettle/strcase v0.1.1
-	github.com/hexops/gotextdiff v1.0.3
 	github.com/stretchr/testify v1.7.4
 )
 

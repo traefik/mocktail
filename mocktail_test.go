@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -9,9 +8,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/hexops/gotextdiff"
-	"github.com/hexops/gotextdiff/myers"
-	"github.com/hexops/gotextdiff/span"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -53,12 +50,7 @@ func TestMocktail(t *testing.T) {
 		goldenBytes, err := os.ReadFile(path + ".golden")
 		require.NoError(t, err)
 
-		edits := myers.ComputeEdits(span.URIFromPath(d.Name()), string(genBytes), string(goldenBytes))
-
-		if len(edits) > 0 {
-			diff := fmt.Sprint(gotextdiff.ToUnified(d.Name(), d.Name()+".golden", string(genBytes), edits))
-			t.Error(diff)
-		}
+		assert.Equal(t, string(goldenBytes), string(genBytes))
 
 		return nil
 	})

@@ -220,37 +220,6 @@ func (s Syrup) writeReturnsFnCaller(w *Writer, argNames []string, params, result
 	}
 }
 
-func (s Syrup) createFuncSignature(params, results *types.Tuple) string {
-	fnSign := "func("
-	for i := 0; i < params.Len(); i++ {
-		param := params.At(i)
-		if param.Type().String() == contextType {
-			continue
-		}
-
-		fnSign += s.getTypeName(param.Type(), i == params.Len()-1)
-
-		if i+1 < params.Len() {
-			fnSign += ", "
-		}
-	}
-	fnSign += ") "
-
-	if results != nil {
-		fnSign += "("
-		for i := 0; i < results.Len(); i++ {
-			rType := results.At(i).Type()
-			fnSign += s.getTypeName(rType, false)
-			if i+1 < results.Len() {
-				fnSign += ", "
-			}
-		}
-		fnSign += ")"
-	}
-
-	return fnSign
-}
-
 func (s Syrup) methodOn(writer io.Writer) error {
 	w := &Writer{writer: writer}
 
@@ -649,6 +618,37 @@ func (s Syrup) getTupleTypes(t *types.Tuple) []string {
 	}
 
 	return tupleTypes
+}
+
+func (s Syrup) createFuncSignature(params, results *types.Tuple) string {
+	fnSign := "func("
+	for i := 0; i < params.Len(); i++ {
+		param := params.At(i)
+		if param.Type().String() == contextType {
+			continue
+		}
+
+		fnSign += s.getTypeName(param.Type(), i == params.Len()-1)
+
+		if i+1 < params.Len() {
+			fnSign += ", "
+		}
+	}
+	fnSign += ") "
+
+	if results != nil {
+		fnSign += "("
+		for i := 0; i < results.Len(); i++ {
+			rType := results.At(i).Type()
+			fnSign += s.getTypeName(rType, false)
+			if i+1 < results.Len() {
+				fnSign += ", "
+			}
+		}
+		fnSign += ")"
+	}
+
+	return fnSign
 }
 
 func writeImports(writer io.Writer, descPkg PackageDesc) error {
