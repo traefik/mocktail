@@ -4,6 +4,7 @@ package a
 
 import (
 	"a/b"
+	"a/c"
 	"bytes"
 	"context"
 	"testing"
@@ -3019,14 +3020,14 @@ func (_c *carrotBarCall) OnBurRaw(aParam interface{}) *carrotBurCall {
 	return _c.Parent.OnBurRaw(aParam)
 }
 
-func (_m *carrotMock) Bur(aParam string) *Coconut {
+func (_m *carrotMock) Bur(aParam string) *c.Cherry {
 	_ret := _m.Called(aParam)
 
-	if _rf, ok := _ret.Get(0).(func(string) *Coconut); ok {
+	if _rf, ok := _ret.Get(0).(func(string) *c.Cherry); ok {
 		return _rf(aParam)
 	}
 
-	_ra0, _ := _ret.Get(0).(*Coconut)
+	_ra0, _ := _ret.Get(0).(*c.Cherry)
 
 	return _ra0
 }
@@ -3084,12 +3085,12 @@ func (_c *carrotBurCall) Maybe() *carrotBurCall {
 	return _c
 }
 
-func (_c *carrotBurCall) TypedReturns(a *Coconut) *carrotBurCall {
+func (_c *carrotBurCall) TypedReturns(a *c.Cherry) *carrotBurCall {
 	_c.Call = _c.Return(a)
 	return _c
 }
 
-func (_c *carrotBurCall) ReturnsFn(fn func(string) *Coconut) *carrotBurCall {
+func (_c *carrotBurCall) ReturnsFn(fn func(string) *c.Cherry) *carrotBurCall {
 	_c.Call = _c.Return(fn)
 	return _c
 }

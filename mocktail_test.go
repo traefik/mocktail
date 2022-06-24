@@ -15,15 +15,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const testRoot = "./testdata/src"
+
 func TestMocktail(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip(runtime.GOOS)
 	}
 
-	testRoot := "./testdata/src"
-
-	dir, err := os.ReadDir(testRoot)
-	require.NoError(t, err)
+	dir, errR := os.ReadDir(testRoot)
+	require.NoError(t, errR)
 
 	for _, entry := range dir {
 		if !entry.IsDir() {
@@ -38,7 +38,7 @@ func TestMocktail(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	require.NoError(t, filepath.WalkDir(testRoot, func(path string, d fs.DirEntry, errW error) error {
+	errW := filepath.WalkDir(testRoot, func(path string, d fs.DirEntry, errW error) error {
 		if errW != nil {
 			return errW
 		}
@@ -61,5 +61,20 @@ func TestMocktail(t *testing.T) {
 		}
 
 		return nil
-	}))
+	})
+	require.NoError(t, errW)
+
+	for _, entry := range dir {
+		if !entry.IsDir() {
+			continue
+		}
+
+		cmd := exec.Command("go", "test", "-v")
+		cmd.Dir = filepath.Join(testRoot, entry.Name())
+
+		output, err := cmd.CombinedOutput()
+		t.Log(string(output))
+
+		require.NoError(t, err)
+	}
 }

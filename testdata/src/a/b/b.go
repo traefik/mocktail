@@ -1,10 +1,12 @@
 package b
 
-import "a"
+import (
+	"a/c"
+)
 
 type Carrot interface {
 	Bar(string) *Potato
-	Bur(string) *a.Coconut
+	Bur(string) *c.Cherry
 }
 
 type Potato struct {

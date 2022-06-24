@@ -660,7 +660,7 @@ func writeImports(writer io.Writer, descPkg PackageDesc) error {
 	}
 
 	data := map[string]interface{}{
-		"Name":    descPkg.PkgName,
+		"Name":    descPkg.Pkg.Name(),
 		"Imports": quickGoImports(descPkg),
 	}
 	return tmpl.Execute(writer, data)
