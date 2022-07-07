@@ -148,7 +148,7 @@ func walk(root, moduleName string) (map[string]PackageDesc, error) {
 
 				interfaceDesc.Methods = append(interfaceDesc.Methods, method)
 
-				for _, imp := range getMethodImports(method, packageDesc.Pkg.Name()) {
+				for _, imp := range getMethodImports(method, packageDesc.Pkg.Path()) {
 					packageDesc.Imports[imp] = struct{}{}
 				}
 			}
