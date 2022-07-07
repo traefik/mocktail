@@ -61,7 +61,7 @@ func TestMocktail(t *testing.T) {
 			continue
 		}
 
-		cmd := exec.Command("go", "test", "-v")
+		cmd := exec.Command("go", "test", "-v", "./...")
 		cmd.Dir = filepath.Join(testRoot, entry.Name())
 
 		output, err := cmd.CombinedOutput()
