@@ -1,3 +1,4 @@
+// package main Naive code generator that creates mock implementation using `testify.mock`.
 package main
 
 import (

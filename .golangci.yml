@@ -1,6 +1,6 @@
 run:
-  deadline: 10m
-  skip-files: ['temp.go' ]
+  timeout: 10m
+  skip-files: [ 'temp.go' ]
   skip-dirs: [ ]
 
 linters-settings:
@@ -10,8 +10,6 @@ linters-settings:
       - fieldalignment
   gocyclo:
     min-complexity: 15
-  maligned:
-    suggest-new: true
   goconst:
     min-len: 5
     min-occurrences: 3
@@ -55,12 +53,17 @@ linters-settings:
 linters:
   enable-all: true
   disable:
-    - maligned # deprecated
-    - interfacer # deprecated
     - scopelint # deprecated
+    - interfacer # deprecated
+    - maligned # deprecated
     - golint # deprecated
     - exhaustivestruct # deprecated
-    - execinquery # not relevant (SQL)
+    - scopelint # deprecated
+    - varcheck # deprecated
+    - structcheck # deprecated
+    - nosnakecase # deprecated
+    - deadcode # deprecated
+    - ifshort # deprecated
     - sqlclosecheck # not relevant (SQL)
     - rowserrcheck # not relevant (SQL)
     - cyclop # duplicate of gocyclo
@@ -79,7 +82,6 @@ linters:
     - prealloc
     - forcetypeassert
     - bodyclose # Too many false positives: https://github.com/timakin/bodyclose/issues/30
-    - ifshort
     - varnamelen
     - nilnil
     - ireturn

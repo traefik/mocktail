@@ -9,7 +9,7 @@ jobs:
     name: Release Process
     runs-on: ubuntu-latest
     env:
-      GO_VERSION: 1.18
+      GO_VERSION: 1.19
       CGO_ENABLED: 0
 
     steps:
