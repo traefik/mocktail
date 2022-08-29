@@ -125,6 +125,10 @@ func (_c *pineappleCooCall) OnHello(bar Water) *pineappleHelloCall {
 	return _c.Parent.OnHello(bar)
 }
 
+func (_c *pineappleCooCall) OnNoo() *pineappleNooCall {
+	return _c.Parent.OnNoo()
+}
+
 func (_c *pineappleCooCall) OnWorld() *pineappleWorldCall {
 	return _c.Parent.OnWorld()
 }
@@ -141,12 +145,20 @@ func (_c *pineappleCooCall) OnHelloRaw(bar interface{}) *pineappleHelloCall {
 	return _c.Parent.OnHelloRaw(bar)
 }
 
+func (_c *pineappleCooCall) OnNooRaw() *pineappleNooCall {
+	return _c.Parent.OnNooRaw()
+}
+
 func (_c *pineappleCooCall) OnWorldRaw() *pineappleWorldCall {
 	return _c.Parent.OnWorldRaw()
 }
 
 func (_m *pineappleMock) Goo() (string, int, Water) {
 	_ret := _m.Called()
+
+	if _rf, ok := _ret.Get(0).(func() (string, int, Water)); ok {
+		return _rf()
+	}
 
 	_ra0 := _ret.String(0)
 	_rb1 := _ret.Int(1)
@@ -213,6 +225,11 @@ func (_c *pineappleGooCall) TypedReturns(a string, b int, c Water) *pineappleGoo
 	return _c
 }
 
+func (_c *pineappleGooCall) ReturnsFn(fn func() (string, int, Water)) *pineappleGooCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
 func (_c *pineappleGooCall) TypedRun(fn func()) *pineappleGooCall {
 	_c.Call = _c.Call.Run(func(args mock.Arguments) {
 		fn()
@@ -232,6 +249,10 @@ func (_c *pineappleGooCall) OnHello(bar Water) *pineappleHelloCall {
 	return _c.Parent.OnHello(bar)
 }
 
+func (_c *pineappleGooCall) OnNoo() *pineappleNooCall {
+	return _c.Parent.OnNoo()
+}
+
 func (_c *pineappleGooCall) OnWorld() *pineappleWorldCall {
 	return _c.Parent.OnWorld()
 }
@@ -246,6 +267,10 @@ func (_c *pineappleGooCall) OnGooRaw() *pineappleGooCall {
 
 func (_c *pineappleGooCall) OnHelloRaw(bar interface{}) *pineappleHelloCall {
 	return _c.Parent.OnHelloRaw(bar)
+}
+
+func (_c *pineappleGooCall) OnNooRaw() *pineappleNooCall {
+	return _c.Parent.OnNooRaw()
 }
 
 func (_c *pineappleGooCall) OnWorldRaw() *pineappleWorldCall {
@@ -347,6 +372,10 @@ func (_c *pineappleHelloCall) OnHello(bar Water) *pineappleHelloCall {
 	return _c.Parent.OnHello(bar)
 }
 
+func (_c *pineappleHelloCall) OnNoo() *pineappleNooCall {
+	return _c.Parent.OnNoo()
+}
+
 func (_c *pineappleHelloCall) OnWorld() *pineappleWorldCall {
 	return _c.Parent.OnWorld()
 }
@@ -363,12 +392,142 @@ func (_c *pineappleHelloCall) OnHelloRaw(bar interface{}) *pineappleHelloCall {
 	return _c.Parent.OnHelloRaw(bar)
 }
 
+func (_c *pineappleHelloCall) OnNooRaw() *pineappleNooCall {
+	return _c.Parent.OnNooRaw()
+}
+
 func (_c *pineappleHelloCall) OnWorldRaw() *pineappleWorldCall {
+	return _c.Parent.OnWorldRaw()
+}
+
+func (_m *pineappleMock) Noo(_ context.Context) string {
+	_ret := _m.Called()
+
+	if _rf, ok := _ret.Get(0).(func() string); ok {
+		return _rf()
+	}
+
+	_ra0 := _ret.String(0)
+
+	return _ra0
+}
+
+func (_m *pineappleMock) OnNoo() *pineappleNooCall {
+	return &pineappleNooCall{Call: _m.Mock.On("Noo"), Parent: _m}
+}
+
+func (_m *pineappleMock) OnNooRaw() *pineappleNooCall {
+	return &pineappleNooCall{Call: _m.Mock.On("Noo"), Parent: _m}
+}
+
+type pineappleNooCall struct {
+	*mock.Call
+	Parent *pineappleMock
+}
+
+func (_c *pineappleNooCall) Panic(msg string) *pineappleNooCall {
+	_c.Call = _c.Call.Panic(msg)
+	return _c
+}
+
+func (_c *pineappleNooCall) Once() *pineappleNooCall {
+	_c.Call = _c.Call.Once()
+	return _c
+}
+
+func (_c *pineappleNooCall) Twice() *pineappleNooCall {
+	_c.Call = _c.Call.Twice()
+	return _c
+}
+
+func (_c *pineappleNooCall) Times(i int) *pineappleNooCall {
+	_c.Call = _c.Call.Times(i)
+	return _c
+}
+
+func (_c *pineappleNooCall) WaitUntil(w <-chan time.Time) *pineappleNooCall {
+	_c.Call = _c.Call.WaitUntil(w)
+	return _c
+}
+
+func (_c *pineappleNooCall) After(d time.Duration) *pineappleNooCall {
+	_c.Call = _c.Call.After(d)
+	return _c
+}
+
+func (_c *pineappleNooCall) Run(fn func(args mock.Arguments)) *pineappleNooCall {
+	_c.Call = _c.Call.Run(fn)
+	return _c
+}
+
+func (_c *pineappleNooCall) Maybe() *pineappleNooCall {
+	_c.Call = _c.Call.Maybe()
+	return _c
+}
+
+func (_c *pineappleNooCall) TypedReturns(a string) *pineappleNooCall {
+	_c.Call = _c.Return(a)
+	return _c
+}
+
+func (_c *pineappleNooCall) ReturnsFn(fn func() string) *pineappleNooCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
+func (_c *pineappleNooCall) TypedRun(fn func()) *pineappleNooCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		fn()
+	})
+	return _c
+}
+
+func (_c *pineappleNooCall) OnCoo(bParam string, cParam Water) *pineappleCooCall {
+	return _c.Parent.OnCoo(bParam, cParam)
+}
+
+func (_c *pineappleNooCall) OnGoo() *pineappleGooCall {
+	return _c.Parent.OnGoo()
+}
+
+func (_c *pineappleNooCall) OnHello(bar Water) *pineappleHelloCall {
+	return _c.Parent.OnHello(bar)
+}
+
+func (_c *pineappleNooCall) OnNoo() *pineappleNooCall {
+	return _c.Parent.OnNoo()
+}
+
+func (_c *pineappleNooCall) OnWorld() *pineappleWorldCall {
+	return _c.Parent.OnWorld()
+}
+
+func (_c *pineappleNooCall) OnCooRaw(bParam interface{}, cParam interface{}) *pineappleCooCall {
+	return _c.Parent.OnCooRaw(bParam, cParam)
+}
+
+func (_c *pineappleNooCall) OnGooRaw() *pineappleGooCall {
+	return _c.Parent.OnGooRaw()
+}
+
+func (_c *pineappleNooCall) OnHelloRaw(bar interface{}) *pineappleHelloCall {
+	return _c.Parent.OnHelloRaw(bar)
+}
+
+func (_c *pineappleNooCall) OnNooRaw() *pineappleNooCall {
+	return _c.Parent.OnNooRaw()
+}
+
+func (_c *pineappleNooCall) OnWorldRaw() *pineappleWorldCall {
 	return _c.Parent.OnWorldRaw()
 }
 
 func (_m *pineappleMock) World() string {
 	_ret := _m.Called()
+
+	if _rf, ok := _ret.Get(0).(func() string); ok {
+		return _rf()
+	}
 
 	_ra0 := _ret.String(0)
 
@@ -433,6 +592,11 @@ func (_c *pineappleWorldCall) TypedReturns(a string) *pineappleWorldCall {
 	return _c
 }
 
+func (_c *pineappleWorldCall) ReturnsFn(fn func() string) *pineappleWorldCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
 func (_c *pineappleWorldCall) TypedRun(fn func()) *pineappleWorldCall {
 	_c.Call = _c.Call.Run(func(args mock.Arguments) {
 		fn()
@@ -452,6 +616,10 @@ func (_c *pineappleWorldCall) OnHello(bar Water) *pineappleHelloCall {
 	return _c.Parent.OnHello(bar)
 }
 
+func (_c *pineappleWorldCall) OnNoo() *pineappleNooCall {
+	return _c.Parent.OnNoo()
+}
+
 func (_c *pineappleWorldCall) OnWorld() *pineappleWorldCall {
 	return _c.Parent.OnWorld()
 }
@@ -466,6 +634,10 @@ func (_c *pineappleWorldCall) OnGooRaw() *pineappleGooCall {
 
 func (_c *pineappleWorldCall) OnHelloRaw(bar interface{}) *pineappleHelloCall {
 	return _c.Parent.OnHelloRaw(bar)
+}
+
+func (_c *pineappleWorldCall) OnNooRaw() *pineappleNooCall {
+	return _c.Parent.OnNooRaw()
 }
 
 func (_c *pineappleWorldCall) OnWorldRaw() *pineappleWorldCall {

@@ -208,7 +208,7 @@ func (s Syrup) mockedMethod(writer io.Writer) error {
 }
 
 func (s Syrup) writeReturnsFnCaller(w *Writer, argNames []string, params, results *types.Tuple) {
-	if len(argNames) > 0 && results.Len() > 0 {
+	if results.Len() > 0 {
 		w.Println()
 		w.Printf("\tif _rf, ok := _ret.Get(0).(%s); ok {\n", s.createFuncSignature(params, results))
 		w.Printf("\t\treturn _rf(%s", strings.Join(argNames, ", "))
@@ -453,9 +453,6 @@ func (s Syrup) returnsFn(writer io.Writer) error {
 	}
 
 	params := s.Signature.Params()
-	if params.Len() < 1 {
-		return nil
-	}
 
 	structBaseName := strcase.ToGoCamel(s.InterfaceName)
 

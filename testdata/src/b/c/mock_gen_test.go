@@ -146,6 +146,10 @@ func (_c *pineappleCooCall) OnWorldRaw() *pineappleWorldCall {
 func (_m *pineappleMock) Goo() (string, int, Water) {
 	_ret := _m.Called()
 
+	if _rf, ok := _ret.Get(0).(func() (string, int, Water)); ok {
+		return _rf()
+	}
+
 	_ra0 := _ret.String(0)
 	_rb1 := _ret.Int(1)
 	_rc2, _ := _ret.Get(2).(Water)
@@ -208,6 +212,11 @@ func (_c *pineappleGooCall) Maybe() *pineappleGooCall {
 
 func (_c *pineappleGooCall) TypedReturns(a string, b int, c Water) *pineappleGooCall {
 	_c.Call = _c.Return(a, b, c)
+	return _c
+}
+
+func (_c *pineappleGooCall) ReturnsFn(fn func() (string, int, Water)) *pineappleGooCall {
+	_c.Call = _c.Return(fn)
 	return _c
 }
 
@@ -368,6 +377,10 @@ func (_c *pineappleHelloCall) OnWorldRaw() *pineappleWorldCall {
 func (_m *pineappleMock) World() string {
 	_ret := _m.Called()
 
+	if _rf, ok := _ret.Get(0).(func() string); ok {
+		return _rf()
+	}
+
 	_ra0 := _ret.String(0)
 
 	return _ra0
@@ -428,6 +441,11 @@ func (_c *pineappleWorldCall) Maybe() *pineappleWorldCall {
 
 func (_c *pineappleWorldCall) TypedReturns(a string) *pineappleWorldCall {
 	_c.Call = _c.Return(a)
+	return _c
+}
+
+func (_c *pineappleWorldCall) ReturnsFn(fn func() string) *pineappleWorldCall {
+	_c.Call = _c.Return(fn)
 	return _c
 }
 

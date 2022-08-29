@@ -13,6 +13,7 @@ type Pineapple interface {
 	World() string
 	Goo() (string, int, Water)
 	Coo(context.Context, string, Water) Water
+	Noo(context.Context) string
 }
 
 type Coconut interface {
