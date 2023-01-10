@@ -3,12 +3,14 @@ package a
 import (
 	"context"
 	"testing"
+	"time"
 )
 
 // mocktail:Pineapple
 // mocktail:Coconut
 // mocktail:b.Carrot
 // mocktail-:fmt.Stringer
+// mocktail:Orange
 
 func TestName(t *testing.T) {
 	var s Pineapple = newPineappleMock(t).
@@ -35,4 +37,17 @@ func TestName(t *testing.T) {
 
 	c.Loo("a", 1, 2)
 	c.Moo(fn)
+
+	juiceCh := make(chan struct{}, 1)
+	juiceCh <- struct{}{}
+
+	var o Orange = newOrangeMock(t).
+		OnJuice().TypedReturns(juiceCh).Once().
+		Parent
+
+	select {
+	case <-o.Juice():
+	case <-time.After(10 * time.Millisecond):
+		t.Fatalf("timed out waiting for an orange juice")
+	}
 }

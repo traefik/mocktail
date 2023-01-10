@@ -225,6 +225,9 @@ func getTypeImports(t types.Type) []string {
 	case *types.Signature:
 		return getTupleImports(v.Params(), v.Results())
 
+	case *types.Chan:
+		return []string{""}
+
 	default:
 		panic(fmt.Sprintf("OOPS %[1]T %[1]s", t))
 	}
