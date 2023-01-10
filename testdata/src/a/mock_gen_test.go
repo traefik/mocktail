@@ -3290,3 +3290,108 @@ func (_c *carrotBurCall) OnBarRaw(aParam interface{}) *carrotBarCall {
 func (_c *carrotBurCall) OnBurRaw(aParam interface{}) *carrotBurCall {
 	return _c.Parent.OnBurRaw(aParam)
 }
+
+// orangeMock mock of Orange.
+type orangeMock struct{ mock.Mock }
+
+// newOrangeMock creates a new orangeMock.
+func newOrangeMock(tb testing.TB) *orangeMock {
+	tb.Helper()
+
+	m := &orangeMock{}
+	m.Mock.Test(tb)
+
+	tb.Cleanup(func() { m.AssertExpectations(tb) })
+
+	return m
+}
+
+func (_m *orangeMock) Juice() <-chan struct{} {
+	_ret := _m.Called()
+
+	if _rf, ok := _ret.Get(0).(func() <-chan struct{}); ok {
+		return _rf()
+	}
+
+	_ra0, _ := _ret.Get(0).(<-chan struct{})
+
+	return _ra0
+}
+
+func (_m *orangeMock) OnJuice() *orangeJuiceCall {
+	return &orangeJuiceCall{Call: _m.Mock.On("Juice"), Parent: _m}
+}
+
+func (_m *orangeMock) OnJuiceRaw() *orangeJuiceCall {
+	return &orangeJuiceCall{Call: _m.Mock.On("Juice"), Parent: _m}
+}
+
+type orangeJuiceCall struct {
+	*mock.Call
+	Parent *orangeMock
+}
+
+func (_c *orangeJuiceCall) Panic(msg string) *orangeJuiceCall {
+	_c.Call = _c.Call.Panic(msg)
+	return _c
+}
+
+func (_c *orangeJuiceCall) Once() *orangeJuiceCall {
+	_c.Call = _c.Call.Once()
+	return _c
+}
+
+func (_c *orangeJuiceCall) Twice() *orangeJuiceCall {
+	_c.Call = _c.Call.Twice()
+	return _c
+}
+
+func (_c *orangeJuiceCall) Times(i int) *orangeJuiceCall {
+	_c.Call = _c.Call.Times(i)
+	return _c
+}
+
+func (_c *orangeJuiceCall) WaitUntil(w <-chan time.Time) *orangeJuiceCall {
+	_c.Call = _c.Call.WaitUntil(w)
+	return _c
+}
+
+func (_c *orangeJuiceCall) After(d time.Duration) *orangeJuiceCall {
+	_c.Call = _c.Call.After(d)
+	return _c
+}
+
+func (_c *orangeJuiceCall) Run(fn func(args mock.Arguments)) *orangeJuiceCall {
+	_c.Call = _c.Call.Run(fn)
+	return _c
+}
+
+func (_c *orangeJuiceCall) Maybe() *orangeJuiceCall {
+	_c.Call = _c.Call.Maybe()
+	return _c
+}
+
+func (_c *orangeJuiceCall) TypedReturns(a <-chan struct{}) *orangeJuiceCall {
+	_c.Call = _c.Return(a)
+	return _c
+}
+
+func (_c *orangeJuiceCall) ReturnsFn(fn func() <-chan struct{}) *orangeJuiceCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
+func (_c *orangeJuiceCall) TypedRun(fn func()) *orangeJuiceCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		fn()
+	})
+	return _c
+}
+
+func (_c *orangeJuiceCall) OnJuice() *orangeJuiceCall {
+	return _c.Parent.OnJuice()
+}
+
+func (_c *orangeJuiceCall) OnJuiceRaw() *orangeJuiceCall {
+	return _c.Parent.OnJuiceRaw()
+}

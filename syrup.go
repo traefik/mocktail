@@ -570,24 +570,13 @@ func (s Syrup) getTypeName(t types.Type, last bool) string {
 		return "map[" + s.getTypeName(v.Key(), false) + "]" + s.getTypeName(v.Elem(), false)
 
 	case *types.Named:
-		name := v.String()
-
-		i := strings.LastIndex(v.String(), "/")
-		if i > -1 {
-			name = name[i+1:]
-		}
-
-		if v.Obj() != nil && v.Obj().Pkg() != nil {
-			if v.Obj().Pkg().Path() == s.PkgPath {
-				i := strings.Index(name, ".")
-				return name[i+1:]
-			}
-		}
-
-		return name
+		return s.getNamedTypeName(v)
 
 	case *types.Pointer:
 		return "*" + s.getTypeName(v.Elem(), false)
+
+	case *types.Struct:
+		return v.String()
 
 	case *types.Interface:
 		return v.String()
@@ -600,6 +589,9 @@ func (s Syrup) getTypeName(t types.Type, last bool) string {
 		}
 
 		return fn
+
+	case *types.Chan:
+		return s.getChanTypeName(v)
 
 	default:
 		panic(fmt.Sprintf("OOPS %[1]T %[1]s", t))
@@ -615,6 +607,38 @@ func (s Syrup) getTupleTypes(t *types.Tuple) []string {
 	}
 
 	return tupleTypes
+}
+
+func (s Syrup) getNamedTypeName(t *types.Named) string {
+	name := t.String()
+
+	i := strings.LastIndex(t.String(), "/")
+	if i > -1 {
+		name = name[i+1:]
+	}
+
+	if t.Obj() != nil && t.Obj().Pkg() != nil {
+		if t.Obj().Pkg().Path() == s.PkgPath {
+			i := strings.Index(name, ".")
+			return name[i+1:]
+		}
+	}
+
+	return name
+}
+
+func (s Syrup) getChanTypeName(t *types.Chan) string {
+	var typ string
+	switch t.Dir() {
+	case types.SendRecv:
+		typ = "chan"
+	case types.SendOnly:
+		typ = "chan<-"
+	case types.RecvOnly:
+		typ = "<-chan"
+	}
+
+	return typ + " " + s.getTypeName(t.Elem(), false)
 }
 
 func (s Syrup) createFuncSignature(params, results *types.Tuple) string {

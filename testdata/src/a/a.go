@@ -37,3 +37,7 @@ type Water struct{}
 type Strawberry interface {
 	Bar(string) int
 }
+
+type Orange interface {
+	Juice() <-chan struct{}
+}
