@@ -24,6 +24,24 @@ package example
 
 ```
 
+## How to Install
+
+### Go Install
+
+You can install Mocktail by running the following command:
+
+```bash
+go install github.com/traefik/mocktail@latest
+```
+
+### Pre-build Binaries
+
+You can use pre-compiled binaries:
+
+* To get the binary just download the latest release for your OS/Arch from [the releases page](https://github.com/traefik/mocktail/releases)
+* Unzip the archive.
+* Add `mocktail` in your `PATH`.
+
 ## Notes
 
 It requires testify >= v1.7.0
