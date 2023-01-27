@@ -48,7 +48,7 @@ It requires testify >= v1.7.0
 
 Mocktail can only generate mock of interfaces inside a module itself (not from stdlib or dependencies)
 
-The `// mocktail` comments **must** be added to ae file named `mock_test.go` only,  
+The `// mocktail` comments **must** be added to a file named `mock_test.go` only,  
 comments in other files will not be detected
 
 ## Examples
