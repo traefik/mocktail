@@ -1,36 +1,38 @@
-package c
+package c_test
 
 import (
 	"context"
 	"testing"
+
+	"b/c"
 )
 
 // mocktail:Pineapple
 // mocktail:Coconut
 
 func TestName(t *testing.T) {
-	var s Pineapple = NewPineappleMock(t).
-		OnHello(Water{}).TypedReturns("a").Once().
+	var s c.Pineapple = c.NewPineappleMock(t).
+		OnHello(c.Water{}).TypedReturns("a").Once().
 		OnWorld().TypedReturns("a").Once().
-		OnGoo().TypedReturns("", 1, Water{}).Once().
-		OnCoo("", Water{}).TypedReturns(Water{}).
-		TypedRun(func(s string, water Water) {}).Once().
+		OnGoo().TypedReturns("", 1, c.Water{}).Once().
+		OnCoo("", c.Water{}).TypedReturns(c.Water{}).
+		TypedRun(func(s string, water c.Water) {}).Once().
 		Parent
 
-	s.Hello(Water{})
+	s.Hello(c.Water{})
 	s.World()
 	s.Goo()
-	s.Coo(context.Background(), "", Water{})
+	s.Coo(context.Background(), "", c.Water{})
 
-	fn := func(st Strawberry, stban Strawberry) Pineapple {
+	fn := func(st c.Strawberry, stban c.Strawberry) c.Pineapple {
 		return s
 	}
 
-	var c Coconut = NewCoconutMock(t).
+	var coco c.Coconut = c.NewCoconutMock(t).
 		OnLoo("a", 1, 2).TypedReturns("foo").Once().
 		OnMoo(fn).TypedReturns("").Once().
 		Parent
 
-	c.Loo("a", 1, 2)
-	c.Moo(fn)
+	coco.Loo("a", 1, 2)
+	coco.Moo(fn)
 }
