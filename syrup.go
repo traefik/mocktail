@@ -692,11 +692,10 @@ func writeMockBase(writer io.Writer, interfaceName string, exported bool) error 
 		"ToGoCamel":  strcase.ToGoCamel,
 		"ToGoPascal": strcase.ToGoPascal,
 	})
-	var newFuncPrefix string
+
+	newFuncPrefix := "new"
 	if exported {
 		newFuncPrefix = "New"
-	} else {
-		newFuncPrefix = "new"
 	}
 
 	tmpl, err := base.Parse(templateMockBase)

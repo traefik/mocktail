@@ -285,12 +285,11 @@ func generate(model map[string]PackageDesc, exported bool) error {
 			return fmt.Errorf("source: %w", err)
 		}
 
-		var fileName string
+		fileName := outputMockFile
 		if exported {
 			fileName = outputExportedMockFile
-		} else {
-			fileName = outputMockFile
 		}
+
 		out := filepath.Join(filepath.Dir(fp), fileName)
 
 		log.Println(out)
