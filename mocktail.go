@@ -4,6 +4,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"flag"
 	"fmt"
 	"go/format"
 	"go/importer"
@@ -18,8 +19,9 @@ import (
 )
 
 const (
-	srcMockFile    = "mock_test.go"
-	outputMockFile = "mock_gen_test.go"
+	srcMockFile            = "mock_test.go"
+	outputMockFile         = "mock_gen_test.go"
+	outputExportedMockFile = "mock_gen.go"
 )
 
 const contextType = "context.Context"
@@ -45,6 +47,11 @@ func main() {
 		log.Fatal("get module path", err)
 	}
 
+	var exported bool
+	flag.BoolVar(&exported, "e", false, "should mocks be exported or not")
+	flag.BoolVar(&exported, "exported", false, "should mocks be exported or not")
+	flag.Parse()
+
 	root := info.Dir
 
 	err = os.Chdir(root)
@@ -61,7 +68,7 @@ func main() {
 		return
 	}
 
-	err = generate(model)
+	err = generate(model, exported)
 	if err != nil {
 		log.Fatalf("generate: %v", err)
 	}
@@ -233,7 +240,7 @@ func getTypeImports(t types.Type) []string {
 	}
 }
 
-func generate(model map[string]PackageDesc) error {
+func generate(model map[string]PackageDesc, exported bool) error {
 	for fp, pkgDesc := range model {
 		buffer := bytes.NewBufferString("")
 
@@ -243,7 +250,7 @@ func generate(model map[string]PackageDesc) error {
 		}
 
 		for _, interfaceDesc := range pkgDesc.Interfaces {
-			err = writeMockBase(buffer, interfaceDesc.Name)
+			err = writeMockBase(buffer, interfaceDesc.Name, exported)
 			if err != nil {
 				return err
 			}
@@ -279,7 +286,13 @@ func generate(model map[string]PackageDesc) error {
 			return fmt.Errorf("source: %w", err)
 		}
 
-		out := filepath.Join(filepath.Dir(fp), outputMockFile)
+		var fileName string
+		if exported {
+			fileName = outputExportedMockFile
+		} else {
+			fileName = outputMockFile
+		}
+		out := filepath.Join(filepath.Dir(fp), fileName)
 
 		log.Println(out)
 

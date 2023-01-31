@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -68,5 +70,57 @@ func TestMocktail(t *testing.T) {
 		t.Log(string(output))
 
 		require.NoError(t, err)
+	}
+}
+
+func TestExportable(t *testing.T) {
+	interfaceName := "MyTestInterface"
+	assertedTpl := `
+// myTestInterfaceMock mock of MyTestInterface.
+type myTestInterfaceMock struct { mock.Mock }
+
+// %[1]vMyTestInterfaceMock creates a new myTestInterfaceMock.
+func %[1]vMyTestInterfaceMock(tb testing.TB) *myTestInterfaceMock {
+	tb.Helper()
+
+	m := &myTestInterfaceMock{}
+	m.Mock.Test(tb)
+
+	tb.Cleanup(func() { m.AssertExpectations(tb) })
+
+	return m
+}
+`
+	type args struct {
+		exported bool
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name:    "private mocks",
+			args:    args{exported: false},
+			want:    fmt.Sprintf(assertedTpl, "new"),
+			wantErr: assert.NoError,
+		},
+		{
+			name:    "public mocks",
+			args:    args{exported: true},
+			want:    fmt.Sprintf(assertedTpl, "New"),
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buffer := bytes.NewBufferString("")
+			err := writeMockBase(buffer, interfaceName, tt.args.exported)
+			tt.wantErr(t, err)
+
+			assert.Equal(t, tt.want, buffer.String())
+		})
 	}
 }
