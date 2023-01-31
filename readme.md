@@ -12,6 +12,8 @@ Naive code generator that creates mock implementation using `testify.mock`.
 
 Unlike [mockery](https://github.com/vektra/mockery), Mocktail generates typed methods on mocks.
 
+For an explanation of why we created Mocktail, you can read [this article](https://traefik.io/blog/mocktail-the-mock-generator-for-strongly-typed-mocks/).
+
 ## How to use
 
 - Create a file named `mock_test.go` inside the package that you can to create mocks.
