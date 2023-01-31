@@ -48,8 +48,7 @@ func main() {
 	}
 
 	var exported bool
-	flag.BoolVar(&exported, "e", false, "should mocks be exported or not")
-	flag.BoolVar(&exported, "exported", false, "should mocks be exported or not")
+	flag.BoolVar(&exported, "e", false, "generate exported mocks")
 	flag.Parse()
 
 	root := info.Dir

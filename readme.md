@@ -97,12 +97,17 @@ func TestMock(t *testing.T) {
 	c.Open("a", 2)
 }
 ```
-### Exportable mocks
-If you need to use your mocks in external packages just add flag `-e` or `-exported`:
+
+## Exportable Mocks
+
+If you need to use your mocks in external packages just add flag `-e`:
+
 ```shell
-mockery -exported
+mocktail -e
 ```
-In this case, mock will be created in the same package but in the file `mock_gen.go`
+
+In this case, mock will be created in the same package but in the file `mock_gen.go`.
+
 <!--
 
 Replacement pattern:
