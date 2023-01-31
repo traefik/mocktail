@@ -27,8 +27,8 @@ package {{ .Name }}
 // {{ .InterfaceName | ToGoCamel }}Mock mock of {{ .InterfaceName }}.
 type {{ .InterfaceName | ToGoCamel }}Mock struct { mock.Mock }
 
-// {{.NewFuncPrefix}}{{ .InterfaceName | ToGoPascal }}Mock creates a new {{ .InterfaceName | ToGoCamel }}Mock.
-func {{.NewFuncPrefix}}{{ .InterfaceName | ToGoPascal }}Mock(tb testing.TB) *{{ .InterfaceName | ToGoCamel }}Mock {
+// {{.ConstructorPrefix}}{{ .InterfaceName | ToGoPascal }}Mock creates a new {{ .InterfaceName | ToGoCamel }}Mock.
+func {{.ConstructorPrefix}}{{ .InterfaceName | ToGoPascal }}Mock(tb testing.TB) *{{ .InterfaceName | ToGoCamel }}Mock {
 	tb.Helper()
 
 	m := &{{ .InterfaceName | ToGoCamel }}Mock{}
@@ -693,9 +693,9 @@ func writeMockBase(writer io.Writer, interfaceName string, exported bool) error 
 		"ToGoPascal": strcase.ToGoPascal,
 	})
 
-	newFuncPrefix := "new"
+	constructorPrefix := "new"
 	if exported {
-		newFuncPrefix = "New"
+		constructorPrefix = "New"
 	}
 
 	tmpl, err := base.Parse(templateMockBase)
@@ -703,7 +703,7 @@ func writeMockBase(writer io.Writer, interfaceName string, exported bool) error 
 		return err
 	}
 
-	return tmpl.Execute(writer, map[string]interface{}{"InterfaceName": interfaceName, "NewFuncPrefix": newFuncPrefix})
+	return tmpl.Execute(writer, map[string]interface{}{"InterfaceName": interfaceName, "ConstructorPrefix": constructorPrefix})
 }
 
 func quickGoImports(descPkg PackageDesc) []string {
