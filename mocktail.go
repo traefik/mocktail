@@ -148,7 +148,10 @@ func walk(root, moduleName string) (map[string]PackageDesc, error) {
 
 			interfaceDesc := InterfaceDesc{Name: interfaceName}
 
-			interfaceType := lookup.Type().Underlying().(*types.Interface)
+			interfaceType, ok := lookup.Type().Underlying().(*types.Interface)
+			if !ok {
+				panic(fmt.Errorf("type %q in %q is not an interface", lookup.Type(), fp))
+			}
 
 			for i := 0; i < interfaceType.NumMethods(); i++ {
 				method := interfaceType.Method(i)
