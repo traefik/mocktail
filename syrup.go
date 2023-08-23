@@ -610,20 +610,19 @@ func (s Syrup) getTupleTypes(t *types.Tuple) []string {
 }
 
 func (s Syrup) getNamedTypeName(t *types.Named) string {
+	if t.Obj() != nil && t.Obj().Pkg() != nil {
+		if t.Obj().Pkg().Path() == s.PkgPath {
+			return t.Obj().Name()
+		}
+		return t.Obj().Pkg().Name() + "." + t.Obj().Name()
+	}
+
 	name := t.String()
 
 	i := strings.LastIndex(t.String(), "/")
 	if i > -1 {
 		name = name[i+1:]
 	}
-
-	if t.Obj() != nil && t.Obj().Pkg() != nil {
-		if t.Obj().Pkg().Path() == s.PkgPath {
-			i := strings.Index(name, ".")
-			return name[i+1:]
-		}
-	}
-
 	return name
 }
 
