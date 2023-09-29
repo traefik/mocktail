@@ -110,6 +110,12 @@ mocktail -e
 
 In this case, mock will be created in the same package but in the file `mock_gen.go`.
 
+If you need to exported mock types add flag `-t`:
+
+```shell
+mocktail -t
+```
+
 <!--
 
 Replacement pattern:
