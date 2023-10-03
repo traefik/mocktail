@@ -603,6 +603,26 @@ func (s Syrup) getTupleTypes(t *types.Tuple) []string {
 func (s Syrup) getNamedTypeName(t *types.Named) string {
 	name := t.String()
 
+	// Parse generic parameters.
+	if t.TypeArgs() != nil && t.TypeArgs().Len() > 0 {
+		name = ""
+		// Add package name if it's not the same as the current package.
+		if t.Obj().Pkg().Path() != s.PkgPath {
+			name = t.Obj().Pkg().Name() + "."
+		}
+		name += t.Obj().Name()
+
+		// Add all type arguments.
+		typeArgs := make([]string, t.TypeArgs().Len())
+		for i := 0; i < t.TypeArgs().Len(); i++ {
+			typeArgs[i] = s.getTypeName(t.TypeArgs().At(i), false)
+		}
+
+		name += "[" + strings.Join(typeArgs, ",") + "]"
+
+		return name
+	}
+
 	i := strings.LastIndex(t.String(), "/")
 	if i > -1 {
 		name = name[i+1:]
