@@ -11,6 +11,7 @@ import (
 // mocktail:b.Carrot
 // mocktail-:fmt.Stringer
 // mocktail:Orange
+// mocktail:d.Cherry
 
 func TestName(t *testing.T) {
 	var s Pineapple = newPineappleMock(t).

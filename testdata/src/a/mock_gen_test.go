@@ -5,6 +5,7 @@ package a
 import (
 	"a/b"
 	"a/c"
+	"a/e/v2"
 	"bytes"
 	"context"
 	"testing"
@@ -3394,4 +3395,109 @@ func (_c *orangeJuiceCall) OnJuice() *orangeJuiceCall {
 
 func (_c *orangeJuiceCall) OnJuiceRaw() *orangeJuiceCall {
 	return _c.Parent.OnJuiceRaw()
+}
+
+// cherryMock mock of Cherry.
+type cherryMock struct{ mock.Mock }
+
+// newCherryMock creates a new cherryMock.
+func newCherryMock(tb testing.TB) *cherryMock {
+	tb.Helper()
+
+	m := &cherryMock{}
+	m.Mock.Test(tb)
+
+	tb.Cleanup(func() { m.AssertExpectations(tb) })
+
+	return m
+}
+
+func (_m *cherryMock) V2Carrot() e.V2Carrot {
+	_ret := _m.Called()
+
+	if _rf, ok := _ret.Get(0).(func() e.V2Carrot); ok {
+		return _rf()
+	}
+
+	_ra0, _ := _ret.Get(0).(e.V2Carrot)
+
+	return _ra0
+}
+
+func (_m *cherryMock) OnV2Carrot() *cherryV2CarrotCall {
+	return &cherryV2CarrotCall{Call: _m.Mock.On("V2Carrot"), Parent: _m}
+}
+
+func (_m *cherryMock) OnV2CarrotRaw() *cherryV2CarrotCall {
+	return &cherryV2CarrotCall{Call: _m.Mock.On("V2Carrot"), Parent: _m}
+}
+
+type cherryV2CarrotCall struct {
+	*mock.Call
+	Parent *cherryMock
+}
+
+func (_c *cherryV2CarrotCall) Panic(msg string) *cherryV2CarrotCall {
+	_c.Call = _c.Call.Panic(msg)
+	return _c
+}
+
+func (_c *cherryV2CarrotCall) Once() *cherryV2CarrotCall {
+	_c.Call = _c.Call.Once()
+	return _c
+}
+
+func (_c *cherryV2CarrotCall) Twice() *cherryV2CarrotCall {
+	_c.Call = _c.Call.Twice()
+	return _c
+}
+
+func (_c *cherryV2CarrotCall) Times(i int) *cherryV2CarrotCall {
+	_c.Call = _c.Call.Times(i)
+	return _c
+}
+
+func (_c *cherryV2CarrotCall) WaitUntil(w <-chan time.Time) *cherryV2CarrotCall {
+	_c.Call = _c.Call.WaitUntil(w)
+	return _c
+}
+
+func (_c *cherryV2CarrotCall) After(d time.Duration) *cherryV2CarrotCall {
+	_c.Call = _c.Call.After(d)
+	return _c
+}
+
+func (_c *cherryV2CarrotCall) Run(fn func(args mock.Arguments)) *cherryV2CarrotCall {
+	_c.Call = _c.Call.Run(fn)
+	return _c
+}
+
+func (_c *cherryV2CarrotCall) Maybe() *cherryV2CarrotCall {
+	_c.Call = _c.Call.Maybe()
+	return _c
+}
+
+func (_c *cherryV2CarrotCall) TypedReturns(a e.V2Carrot) *cherryV2CarrotCall {
+	_c.Call = _c.Return(a)
+	return _c
+}
+
+func (_c *cherryV2CarrotCall) ReturnsFn(fn func() e.V2Carrot) *cherryV2CarrotCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
+func (_c *cherryV2CarrotCall) TypedRun(fn func()) *cherryV2CarrotCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		fn()
+	})
+	return _c
+}
+
+func (_c *cherryV2CarrotCall) OnV2Carrot() *cherryV2CarrotCall {
+	return _c.Parent.OnV2Carrot()
+}
+
+func (_c *cherryV2CarrotCall) OnV2CarrotRaw() *cherryV2CarrotCall {
+	return _c.Parent.OnV2CarrotRaw()
 }
