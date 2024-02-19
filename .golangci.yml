@@ -24,11 +24,20 @@ linters-settings:
   gofumpt:
     extra-rules: true
   depguard:
-    list-type: blacklist
-    include-go-root: false
-    packages:
-      - github.com/sirupsen/logrus
-      - github.com/pkg/errors
+    rules:
+      main:
+        files:
+          - $all
+          - "!$test"
+        allow:
+          - $gostd
+          - github.com/ettle/strcase
+      test:
+        files:
+          - "$test"
+        allow:
+          - $gostd
+          - github.com/stretchr
   gocritic:
     enabled-tags:
       - diagnostic
@@ -87,7 +96,6 @@ linters:
     - ireturn
     - errchkjson
     - contextcheck
-    - depguard
 
 issues:
   exclude-use-default: false
