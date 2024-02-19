@@ -16,6 +16,8 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/ettle/strcase"
 )
 
 const (
@@ -47,8 +49,9 @@ func main() {
 		log.Fatal("get module path", err)
 	}
 
-	var exported bool
+	var exported, exportMockTypes bool
 	flag.BoolVar(&exported, "e", false, "generate exported mocks")
+	flag.BoolVar(&exportMockTypes, "t", false, "generate exported mock types")
 	flag.Parse()
 
 	root := info.Dir
@@ -67,7 +70,7 @@ func main() {
 		return
 	}
 
-	err = generate(model, exported)
+	err = generate(model, exported, exportMockTypes)
 	if err != nil {
 		log.Fatalf("generate: %v", err)
 	}
@@ -242,7 +245,7 @@ func getTypeImports(t types.Type) []string {
 	}
 }
 
-func generate(model map[string]PackageDesc, exported bool) error {
+func generate(model map[string]PackageDesc, exported bool, exportMockTypes bool) error {
 	for fp, pkgDesc := range model {
 		buffer := bytes.NewBufferString("")
 
@@ -252,7 +255,12 @@ func generate(model map[string]PackageDesc, exported bool) error {
 		}
 
 		for _, interfaceDesc := range pkgDesc.Interfaces {
-			err = writeMockBase(buffer, interfaceDesc.Name, exported)
+			interfaceName := strcase.ToGoCamel(interfaceDesc.Name)
+			if exportMockTypes {
+				interfaceName = strcase.ToGoPascal(interfaceDesc.Name)
+			}
+
+			err = writeMockBase(buffer, interfaceDesc.Name, interfaceName, exported)
 			if err != nil {
 				return err
 			}
@@ -263,10 +271,11 @@ func generate(model map[string]PackageDesc, exported bool) error {
 				signature := method.Type().(*types.Signature)
 
 				syrup := Syrup{
-					PkgPath:       pkgDesc.Pkg.Path(),
-					InterfaceName: interfaceDesc.Name,
-					Method:        method,
-					Signature:     signature,
+					PkgPath:               pkgDesc.Pkg.Path(),
+					OriginalInterfaceName: interfaceDesc.Name,
+					Method:                method,
+					Signature:             signature,
+					InterfaceName:         interfaceName,
 				}
 
 				err = syrup.MockMethod(buffer)
