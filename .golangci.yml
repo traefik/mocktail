@@ -87,6 +87,7 @@ linters:
     - ireturn
     - errchkjson
     - contextcheck
+    - depguard
 
 issues:
   exclude-use-default: false

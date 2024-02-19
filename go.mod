@@ -1,9 +1,9 @@
 module github.com/traefik/mocktail
 
-go 1.19
+go 1.22
 
 require (
-	github.com/ettle/strcase v0.1.1
+	github.com/ettle/strcase v0.2.0
 	github.com/stretchr/testify v1.8.1
 )
 
