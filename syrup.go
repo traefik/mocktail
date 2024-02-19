@@ -741,7 +741,7 @@ func quickGoImports(descPkg PackageDesc) []string {
 
 func getParamName(tVar *types.Var, i int) string {
 	if tVar.Name() == "" {
-		return string(rune('a'+i)) + "Param"
+		return fmt.Sprintf("%sParam", string(rune('a'+i)))
 	}
 	return tVar.Name()
 }
