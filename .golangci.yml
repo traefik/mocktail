@@ -26,18 +26,11 @@ linters-settings:
   depguard:
     rules:
       main:
-        files:
-          - $all
-          - "!$test"
-        allow:
-          - $gostd
-          - github.com/ettle/strcase
-      test:
-        files:
-          - "$test"
-        allow:
-          - $gostd
-          - github.com/stretchr
+        deny:
+          - pkg: "github.com/instana/testify"
+            desc: not allowed
+          - pkg: "github.com/pkg/errors"
+            desc: Should be replaced by standard lib errors package
   gocritic:
     enabled-tags:
       - diagnostic
