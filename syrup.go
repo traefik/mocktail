@@ -593,6 +593,9 @@ func (s Syrup) getTypeName(t types.Type, last bool) string {
 	case *types.Chan:
 		return s.getChanTypeName(v)
 
+	case *types.Array:
+		return fmt.Sprintf("[%d]%s", v.Len(), s.getTypeName(v.Elem(), false))
+
 	default:
 		panic(fmt.Sprintf("OOPS %[1]T %[1]s", t))
 	}

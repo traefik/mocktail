@@ -213,6 +213,9 @@ func getTypeImports(t types.Type) []string {
 	case *types.Slice:
 		return getTypeImports(v.Elem())
 
+	case *types.Array:
+		return getTypeImports(v.Elem())
+
 	case *types.Map:
 		imports := getTypeImports(v.Key())
 		imports = append(imports, getTypeImports(v.Elem())...)
