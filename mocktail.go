@@ -7,8 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"go/format"
-	"go/importer"
-	"go/token"
 	"go/types"
 	"io/fs"
 	"log"
@@ -16,6 +14,8 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/tools/go/packages"
 )
 
 const (
@@ -77,8 +77,6 @@ func main() {
 func walk(root, moduleName string) (map[string]PackageDesc, error) {
 	model := make(map[string]PackageDesc)
 
-	importR := importer.ForCompiler(token.NewFileSet(), "source", nil)
-
 	err := filepath.WalkDir(root, func(fp string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -131,12 +129,19 @@ func walk(root, moduleName string) (map[string]PackageDesc, error) {
 				importPath = path.Join(moduleName, filePkgName)
 			}
 
-			pkg, err := importR.Import(importPath)
+			pkgs, err := packages.Load(
+				&packages.Config{
+					Mode: packages.NeedTypes,
+					Dir:  root,
+				},
+				importPath,
+			)
 			if err != nil {
-				return fmt.Errorf("failed to import %q: %w", importPath, err)
+				return fmt.Errorf("load package %q: %w", importPath, err)
 			}
 
-			lookup := pkg.Scope().Lookup(interfaceName)
+			// Only one package specified by the import path has been loaded.
+			lookup := pkgs[0].Types.Scope().Lookup(interfaceName)
 			if lookup == nil {
 				log.Printf("Unable to find: %s", interfaceName)
 				continue
