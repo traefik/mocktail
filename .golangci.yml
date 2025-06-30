@@ -89,6 +89,10 @@ issues:
       linters:
         - funlen
         - noctx
+    - path: mocktail.go
+      linters:
+        - gocyclo
+      text: "cyclomatic complexity 16 of func `processSingleFile` is high" # The complexity is expected.
 
 output:
   show-stats: true

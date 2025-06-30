@@ -26,6 +26,68 @@ package example
 
 ```
 
+## Single File Mode with go:generate
+
+You can also use Mocktail with `//go:generate` comments to generate mocks for interfaces in a specific file using the `-source` parameter:
+
+### Usage
+
+Create a file with your interfaces:
+
+```go
+// interfaces.go
+package main
+
+import (
+	"context"
+	"io"
+)
+
+type UserService interface {
+	GetUser(ctx context.Context, id string) (*User, error)
+	CreateUser(ctx context.Context, user *User) error
+}
+
+type FileHandler interface {
+	Upload(ctx context.Context, filename string, content io.Reader) error
+	Download(ctx context.Context, filename string) (io.ReadCloser, error)
+}
+
+type User struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+```
+
+Add a `//go:generate` comment in any Go file in the same package:
+
+```go
+// main.go
+package main
+
+//go:generate mocktail -source=interfaces.go
+
+func main() {
+	// Your application code
+}
+```
+
+Then run:
+
+```bash
+go generate
+```
+
+This will generate `mock_gen_test.go` containing mocks for all exported interfaces in the specified source file.
+
+### Options
+
+- **Regular mocks**: `//go:generate mocktail -source=interfaces.go` (generates `mock_gen_test.go`)
+- **Exported mocks**: `//go:generate mocktail -source=interfaces.go -e` (generates `mock_gen.go`)
+
+The `-source` parameter accepts both relative paths (relative to the current working directory) and absolute paths.
+
 ## How to Install
 
 ### Go Install

@@ -48,7 +48,9 @@ func main() {
 	}
 
 	var exported bool
+	var sourceFile string
 	flag.BoolVar(&exported, "e", false, "generate exported mocks")
+	flag.StringVar(&sourceFile, "source", "", "source file containing interfaces to mock")
 	flag.Parse()
 
 	root := info.Dir
@@ -58,9 +60,17 @@ func main() {
 		log.Fatalf("Chdir: %v", err)
 	}
 
-	model, err := walk(root, info.Path)
-	if err != nil {
-		log.Fatalf("walk: %v", err)
+	var model map[string]PackageDesc
+	if sourceFile != "" {
+		model, err = processSingleFile(sourceFile, root, info.Path)
+		if err != nil {
+			log.Fatalf("process single file: %v", err)
+		}
+	} else {
+		model, err = walk(root, info.Path)
+		if err != nil {
+			log.Fatalf("walk: %v", err)
+		}
 	}
 
 	if len(model) == 0 {
@@ -71,6 +81,96 @@ func main() {
 	if err != nil {
 		log.Fatalf("generate: %v", err)
 	}
+}
+
+// processSingleFile processes a single source file to extract interfaces for mocking.
+func processSingleFile(sourceFile, root, moduleName string) (map[string]PackageDesc, error) {
+	model := make(map[string]PackageDesc)
+
+	// Convert to absolute path if relative
+	if !filepath.IsAbs(sourceFile) {
+		sourceFile = filepath.Join(os.Getenv("PWD"), sourceFile)
+	}
+
+	// Check if file exists
+	if _, err := os.Stat(sourceFile); os.IsNotExist(err) {
+		return nil, fmt.Errorf("source file does not exist: %s", sourceFile)
+	}
+
+	// Get the package path for this file
+	fileDir := filepath.Dir(sourceFile)
+	relDir, err := filepath.Rel(root, fileDir)
+	if err != nil {
+		return nil, fmt.Errorf("get relative directory: %w", err)
+	}
+
+	importPath := path.Join(moduleName, relDir)
+
+	// Load the package
+	pkgs, err := packages.Load(
+		&packages.Config{
+			Mode: packages.NeedTypes,
+			Dir:  root,
+		},
+		importPath,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("load package %q: %w", importPath, err)
+	}
+
+	if len(pkgs) == 0 {
+		return nil, fmt.Errorf("no packages found for %q", importPath)
+	}
+
+	pkg := pkgs[0]
+	if pkg.Types == nil {
+		return nil, fmt.Errorf("package %q has no type information", importPath)
+	}
+
+	// Find all interfaces in the package
+	packageDesc := PackageDesc{
+		Pkg:     pkg.Types,
+		Imports: map[string]struct{}{},
+	}
+
+	scope := pkg.Types.Scope()
+	for _, name := range scope.Names() {
+		obj := scope.Lookup(name)
+		if obj == nil || !obj.Exported() {
+			continue
+		}
+
+		// Check if it's an interface
+		if named, ok := obj.Type().(*types.Named); ok {
+			if interfaceType, ok := named.Underlying().(*types.Interface); ok {
+				interfaceDesc := InterfaceDesc{Name: name}
+
+				// Get all methods from the interface
+				for i := range interfaceType.NumMethods() {
+					method := interfaceType.Method(i)
+					interfaceDesc.Methods = append(interfaceDesc.Methods, method)
+
+					// Collect imports needed for this method
+					for _, imp := range getMethodImports(method, pkg.Types.Path()) {
+						packageDesc.Imports[imp] = struct{}{}
+					}
+				}
+
+				if len(interfaceDesc.Methods) > 0 {
+					packageDesc.Interfaces = append(packageDesc.Interfaces, interfaceDesc)
+				}
+			}
+		}
+	}
+
+	if len(packageDesc.Interfaces) > 0 {
+		// Use the source file path as the key, but change the filename to match expected output location
+		outputDir := filepath.Dir(sourceFile)
+		outputKey := filepath.Join(outputDir, srcMockFile)
+		model[outputKey] = packageDesc
+	}
+
+	return model, nil
 }
 
 //nolint:gocognit,gocyclo // The complexity is expected.
