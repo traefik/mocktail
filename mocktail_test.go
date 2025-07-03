@@ -214,33 +214,81 @@ func TestProcessSingleFile(t *testing.T) {
 	}
 
 	tests := []struct {
-		name         string
-		sourceFile   string
-		expectedErr  bool
-		expectedIntf int // expected number of interfaces
+		name            string
+		sourceFile      string
+		interfaceFilter string
+		expectedErr     bool
+		expectedIntf    int // expected number of interfaces
+		expectedModels  int // expected number of models
 	}{
 		{
-			name:         "valid_basic_file",
-			sourceFile:   "testdata/source/a/interfaces.go",
-			expectedErr:  false,
-			expectedIntf: 2, // PiniaColada, shirleyTemple
+			name:            "valid_basic_file_all_interfaces",
+			sourceFile:      "testdata/source/a/interfaces.go",
+			interfaceFilter: "",
+			expectedErr:     false,
+			expectedIntf:    2, // PiniaColada, shirleyTemple
+			expectedModels:  1,
 		},
 		{
-			name:         "valid_exported_file",
-			sourceFile:   "testdata/source/b/interfaces.go",
-			expectedErr:  false,
-			expectedIntf: 1, // PiniaColada
+			name:            "valid_basic_file_single_interface",
+			sourceFile:      "testdata/source/a/interfaces.go",
+			interfaceFilter: "PiniaColada",
+			expectedErr:     false,
+			expectedIntf:    1, // PiniaColada only
+			expectedModels:  1,
 		},
 		{
-			name:        "nonexistent_file",
-			sourceFile:  "testdata/source/nonexistent.go",
-			expectedErr: true,
+			name:            "valid_basic_file_multiple_interfaces",
+			sourceFile:      "testdata/source/a/interfaces.go",
+			interfaceFilter: "PiniaColada,shirleyTemple",
+			expectedErr:     false,
+			expectedIntf:    2, // Both interfaces
+			expectedModels:  1,
 		},
 		{
-			name:         "relative_path",
-			sourceFile:   "./testdata/source/a/interfaces.go",
-			expectedErr:  false,
-			expectedIntf: 2, // PiniaColada, shirleyTemple
+			name:            "valid_exported_file",
+			sourceFile:      "testdata/source/b/interfaces.go",
+			interfaceFilter: "",
+			expectedErr:     false,
+			expectedIntf:    1, // PiniaColada
+			expectedModels:  1,
+		},
+		{
+			name:            "valid_exported_file_specific_interface",
+			sourceFile:      "testdata/source/b/interfaces.go",
+			interfaceFilter: "PiniaColada",
+			expectedErr:     false,
+			expectedIntf:    1, // PiniaColada
+			expectedModels:  1,
+		},
+		{
+			name:            "nonexistent_file",
+			sourceFile:      "testdata/source/nonexistent.go",
+			interfaceFilter: "",
+			expectedErr:     true,
+			expectedModels:  0,
+		},
+		{
+			name:            "relative_path",
+			sourceFile:      "./testdata/source/a/interfaces.go",
+			interfaceFilter: "",
+			expectedErr:     false,
+			expectedIntf:    2, // PiniaColada, shirleyTemple
+			expectedModels:  1,
+		},
+		{
+			name:            "nonexistent_interface",
+			sourceFile:      "testdata/source/a/interfaces.go",
+			interfaceFilter: "NonExistentInterface",
+			expectedIntf:    0, // No interfaces found
+			expectedModels:  0,
+		},
+		{
+			name:            "partial_nonexistent_interface",
+			sourceFile:      "testdata/source/a/interfaces.go",
+			interfaceFilter: "PiniaColada,NonExistentInterface",
+			expectedIntf:    1, // PiniaColada only
+			expectedModels:  1,
 		},
 	}
 
@@ -260,17 +308,17 @@ func TestProcessSingleFile(t *testing.T) {
 			}
 
 			// Test processSingleFile function
-			model, err := processSingleFile(absSourceFile, info.Dir, info.Path)
+			model, err := processSingleFile(absSourceFile, info.Dir, info.Path, tt.interfaceFilter)
 
 			if tt.expectedErr {
-				assert.Error(t, err)
+				require.Error(t, err)
 				return
 			}
 
 			require.NoError(t, err)
 
 			// Should have exactly one entry in the model
-			assert.Len(t, model, 1)
+			assert.Len(t, model, tt.expectedModels)
 
 			// Check the number of interfaces found
 			var totalInterfaces int
@@ -314,7 +362,7 @@ func TestProcessSingleFile_InvalidPackage(t *testing.T) {
 	require.NoError(t, err)
 
 	// Test processSingleFile with file containing no interfaces
-	model, err := processSingleFile(tmpFile.Name(), info.Dir, info.Path)
+	model, err := processSingleFile(tmpFile.Name(), info.Dir, info.Path, "")
 	require.NoError(t, err)
 	assert.Empty(t, model, "Should return empty model when no interfaces found")
 }
@@ -335,7 +383,7 @@ func TestProcessSingleFile_AbsolutePath(t *testing.T) {
 	info, err := getModuleInfo(testDir)
 	require.NoError(t, err)
 
-	model, err := processSingleFile(absPath, info.Dir, info.Path)
+	model, err := processSingleFile(absPath, info.Dir, info.Path, "")
 	require.NoError(t, err)
 
 	assert.Len(t, model, 1)
@@ -345,4 +393,116 @@ func TestProcessSingleFile_AbsolutePath(t *testing.T) {
 		totalInterfaces += len(pkgDesc.Interfaces)
 	}
 	assert.Equal(t, 2, totalInterfaces)
+}
+
+func TestMocktail_interface_flag(t *testing.T) {
+	if runtime.GOOS == goosWindows {
+		t.Skip(runtime.GOOS)
+	}
+
+	testCases := []struct {
+		name            string
+		sourceFile      string
+		interfaceFilter string
+		expectedOutput  string
+		extraArgs       []string
+		checkContent    bool // Whether to check the content of the generated file
+	}{
+		{
+			name:            "single_interface",
+			sourceFile:      "./testdata/source/a/interfaces.go",
+			interfaceFilter: "PiniaColada",
+			expectedOutput:  outputMockFile,
+			extraArgs:       nil,
+			checkContent:    true,
+		},
+		{
+			name:            "single_interface_exported",
+			sourceFile:      "./testdata/source/a/interfaces.go",
+			interfaceFilter: "PiniaColada",
+			expectedOutput:  outputExportedMockFile,
+			extraArgs:       []string{"-e"},
+			checkContent:    true,
+		},
+		{
+			name:            "multiple_interfaces",
+			sourceFile:      "./testdata/source/a/interfaces.go",
+			interfaceFilter: "PiniaColada,shirleyTemple",
+			expectedOutput:  outputMockFile,
+			extraArgs:       nil,
+			checkContent:    false, // This one can run the full test since it has both interfaces
+		},
+		{
+			name:            "all_interfaces_no_filter",
+			sourceFile:      "./testdata/source/a/interfaces.go",
+			interfaceFilter: "",
+			expectedOutput:  outputMockFile,
+			extraArgs:       nil,
+			checkContent:    false, // This one can run the full test since it has both interfaces
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Get current working directory (project root)
+			cwd, err := os.Getwd()
+			require.NoError(t, err)
+
+			// Set up environment to use current directory as root
+			t.Setenv("MOCKTAIL_TEST_PATH", cwd)
+
+			// Build command args
+			args := []string{"run", "."}
+			args = append(args, tc.extraArgs...)
+			args = append(args, "-source="+tc.sourceFile)
+			if tc.interfaceFilter != "" {
+				args = append(args, "-interface="+tc.interfaceFilter)
+			}
+
+			// Run mocktail with interface parameter from project root
+			cmd := exec.Command("go", args...)
+			cmd.Dir = cwd
+			output, err := cmd.CombinedOutput()
+			t.Log(string(output))
+			require.NoError(t, err)
+
+			// Check generated file exists in the correct location
+			genPath := filepath.Join(cwd, "testdata", "source", "a", tc.expectedOutput)
+			t.Cleanup(func() {
+				_ = os.Remove(genPath)
+			})
+
+			_, err = os.Stat(genPath)
+			require.NoError(t, err, "Generated file should exist at %s", genPath)
+
+			if tc.checkContent {
+				// Just verify the file contains the expected interface mock
+				content, errRead := os.ReadFile(genPath)
+				require.NoError(t, errRead)
+
+				// Check that the file contains the expected mock structure
+				contentStr := string(content)
+				assert.Contains(t, contentStr, "piniaColadaMock", "Generated file should contain PiniaColada mock")
+				assert.Contains(t, contentStr, "OnRhum", "Generated file should contain OnRhum method")
+				assert.Contains(t, contentStr, "OnPine", "Generated file should contain OnPine method")
+				assert.Contains(t, contentStr, "OnCoconut", "Generated file should contain OnCoconut method")
+
+				// If filtering for single interface, should not contain the other interface
+				if tc.interfaceFilter == "PiniaColada" {
+					assert.NotContains(t, contentStr, "shirleyTempleMock", "Should not contain shirleyTemple mock when filtering for PiniaColada only")
+				}
+
+				return
+			}
+
+			// For the multiple interfaces test, run the full test suite
+			testDir := filepath.Join(cwd, "testdata", "source", "a")
+			testCmd := exec.Command("go", "test", "-v", "./...")
+			testCmd.Dir = testDir
+
+			output, err = testCmd.CombinedOutput()
+			t.Log(string(output))
+			require.NoError(t, err)
+		})
+	}
 }

@@ -81,10 +81,26 @@ go generate
 
 This will generate `mock_gen_test.go` containing mocks for all exported interfaces in the specified source file.
 
+### Selective Interface Mocking
+
+You can specify which interfaces to mock from a source file using the `-interface` flag in combination with `-source`:
+
+```bash
+# Mock only specific interfaces from a file
+mocktail -source=interfaces.go -interface="UserService,FileHandler"
+
+# Mock a single interface
+mocktail -source=interfaces.go -interface="UserService"
+```
+
+The `-interface` flag accepts a comma-separated list of interface names and can only be used together with the `-source` flag.
+
 ### Options
 
-- **Regular mocks**: `//go:generate mocktail -source=interfaces.go` (generates `mock_gen_test.go`)
-- **Exported mocks**: `//go:generate mocktail -source=interfaces.go -e` (generates `mock_gen.go`)
+- **Regular mocks**: `mocktail -source=interfaces.go` (generates `mock_gen_test.go`)
+- **Exported mocks**: `mocktail -source=interfaces.go -e` (generates `mock_gen.go`)
+- **Specific interfaces**: `mocktail -source=interfaces.go -interface="Interface1,Interface2"`
+- **Exported + Specific**: `mocktail -source=interfaces.go -e -interface="ClientInterface"`
 
 The `-source` parameter accepts both relative paths (relative to the current working directory) and absolute paths.
 
@@ -102,9 +118,9 @@ go install github.com/traefik/mocktail@latest
 
 You can use pre-compiled binaries:
 
-* To get the binary just download the latest release for your OS/Arch from [the releases page](https://github.com/traefik/mocktail/releases)
-* Unzip the archive.
-* Add `mocktail` in your `PATH`.
+- To get the binary just download the latest release for your OS/Arch from [the releases page](https://github.com/traefik/mocktail/releases)
+- Unzip the archive.
+- Add `mocktail` in your `PATH`.
 
 ## Notes
 
@@ -112,7 +128,7 @@ It requires testify >= v1.7.0
 
 Mocktail can only generate mock of interfaces inside a module itself (not from stdlib or dependencies)
 
-The `// mocktail` comments **must** be added to a file named `mock_test.go` only,  
+The `// mocktail` comments **must** be added to a file named `mock_test.go` only,
 comments in other files will not be detected
 
 ## Examples
