@@ -223,7 +223,7 @@ func TestProcessSingleFile(t *testing.T) {
 			name:         "valid_basic_file",
 			sourceFile:   "testdata/source/a/interfaces.go",
 			expectedErr:  false,
-			expectedIntf: 1, // PiniaColada
+			expectedIntf: 2, // PiniaColada, shirleyTemple
 		},
 		{
 			name:         "valid_exported_file",
@@ -240,7 +240,7 @@ func TestProcessSingleFile(t *testing.T) {
 			name:         "relative_path",
 			sourceFile:   "./testdata/source/a/interfaces.go",
 			expectedErr:  false,
-			expectedIntf: 1, // PiniaColada
+			expectedIntf: 2, // PiniaColada, shirleyTemple
 		},
 	}
 
@@ -315,7 +315,6 @@ func TestProcessSingleFile_InvalidPackage(t *testing.T) {
 
 	// Test processSingleFile with file containing no interfaces
 	model, err := processSingleFile(tmpFile.Name(), info.Dir, info.Path)
-
 	require.NoError(t, err)
 	assert.Empty(t, model, "Should return empty model when no interfaces found")
 }
@@ -345,5 +344,5 @@ func TestProcessSingleFile_AbsolutePath(t *testing.T) {
 	for _, pkgDesc := range model {
 		totalInterfaces += len(pkgDesc.Interfaces)
 	}
-	assert.Equal(t, 1, totalInterfaces)
+	assert.Equal(t, 2, totalInterfaces)
 }

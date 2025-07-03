@@ -306,3 +306,301 @@ func (_c *piniaColadaRhumCall) OnPineRaw(apple interface{}) *piniaColadaPineCall
 func (_c *piniaColadaRhumCall) OnRhumRaw() *piniaColadaRhumCall {
 	return _c.Parent.OnRhumRaw()
 }
+
+// shirleyTempleMock mock of shirleyTemple.
+type shirleyTempleMock struct{ mock.Mock }
+
+// newShirleyTempleMock creates a new shirleyTempleMock.
+func newShirleyTempleMock(tb testing.TB) *shirleyTempleMock {
+	tb.Helper()
+
+	m := &shirleyTempleMock{}
+	m.Mock.Test(tb)
+
+	tb.Cleanup(func() { m.AssertExpectations(tb) })
+
+	return m
+}
+
+func (_m *shirleyTempleMock) GetCherry() string {
+	_ret := _m.Called()
+
+	if _rf, ok := _ret.Get(0).(func() string); ok {
+		return _rf()
+	}
+
+	maraschino := _ret.String(0)
+
+	return maraschino
+}
+
+func (_m *shirleyTempleMock) OnGetCherry() *shirleyTempleGetCherryCall {
+	return &shirleyTempleGetCherryCall{Call: _m.Mock.On("GetCherry"), Parent: _m}
+}
+
+func (_m *shirleyTempleMock) OnGetCherryRaw() *shirleyTempleGetCherryCall {
+	return &shirleyTempleGetCherryCall{Call: _m.Mock.On("GetCherry"), Parent: _m}
+}
+
+type shirleyTempleGetCherryCall struct {
+	*mock.Call
+	Parent *shirleyTempleMock
+}
+
+func (_c *shirleyTempleGetCherryCall) Panic(msg string) *shirleyTempleGetCherryCall {
+	_c.Call = _c.Call.Panic(msg)
+	return _c
+}
+
+func (_c *shirleyTempleGetCherryCall) Once() *shirleyTempleGetCherryCall {
+	_c.Call = _c.Call.Once()
+	return _c
+}
+
+func (_c *shirleyTempleGetCherryCall) Twice() *shirleyTempleGetCherryCall {
+	_c.Call = _c.Call.Twice()
+	return _c
+}
+
+func (_c *shirleyTempleGetCherryCall) Times(i int) *shirleyTempleGetCherryCall {
+	_c.Call = _c.Call.Times(i)
+	return _c
+}
+
+func (_c *shirleyTempleGetCherryCall) WaitUntil(w <-chan time.Time) *shirleyTempleGetCherryCall {
+	_c.Call = _c.Call.WaitUntil(w)
+	return _c
+}
+
+func (_c *shirleyTempleGetCherryCall) After(d time.Duration) *shirleyTempleGetCherryCall {
+	_c.Call = _c.Call.After(d)
+	return _c
+}
+
+func (_c *shirleyTempleGetCherryCall) Run(fn func(args mock.Arguments)) *shirleyTempleGetCherryCall {
+	_c.Call = _c.Call.Run(fn)
+	return _c
+}
+
+func (_c *shirleyTempleGetCherryCall) Maybe() *shirleyTempleGetCherryCall {
+	_c.Call = _c.Call.Maybe()
+	return _c
+}
+
+func (_c *shirleyTempleGetCherryCall) TypedReturns(a string) *shirleyTempleGetCherryCall {
+	_c.Call = _c.Return(a)
+	return _c
+}
+
+func (_c *shirleyTempleGetCherryCall) ReturnsFn(fn func() string) *shirleyTempleGetCherryCall {
+	_c.Call = _c.Return(fn)
+	return _c
+}
+
+func (_c *shirleyTempleGetCherryCall) TypedRun(fn func()) *shirleyTempleGetCherryCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		fn()
+	})
+	return _c
+}
+
+func (_c *shirleyTempleGetCherryCall) OnGetCherry() *shirleyTempleGetCherryCall {
+	return _c.Parent.OnGetCherry()
+}
+
+func (_c *shirleyTempleGetCherryCall) OnGrenadine() *shirleyTempleGrenadineCall {
+	return _c.Parent.OnGrenadine()
+}
+
+func (_c *shirleyTempleGetCherryCall) Onale(ginger string) *shirleyTemplealeCall {
+	return _c.Parent.Onale(ginger)
+}
+
+func (_c *shirleyTempleGetCherryCall) OnGetCherryRaw() *shirleyTempleGetCherryCall {
+	return _c.Parent.OnGetCherryRaw()
+}
+
+func (_c *shirleyTempleGetCherryCall) OnGrenadineRaw() *shirleyTempleGrenadineCall {
+	return _c.Parent.OnGrenadineRaw()
+}
+
+func (_c *shirleyTempleGetCherryCall) OnaleRaw(ginger interface{}) *shirleyTemplealeCall {
+	return _c.Parent.OnaleRaw(ginger)
+}
+
+func (_m *shirleyTempleMock) Grenadine() {
+	_m.Called()
+}
+
+func (_m *shirleyTempleMock) OnGrenadine() *shirleyTempleGrenadineCall {
+	return &shirleyTempleGrenadineCall{Call: _m.Mock.On("Grenadine"), Parent: _m}
+}
+
+func (_m *shirleyTempleMock) OnGrenadineRaw() *shirleyTempleGrenadineCall {
+	return &shirleyTempleGrenadineCall{Call: _m.Mock.On("Grenadine"), Parent: _m}
+}
+
+type shirleyTempleGrenadineCall struct {
+	*mock.Call
+	Parent *shirleyTempleMock
+}
+
+func (_c *shirleyTempleGrenadineCall) Panic(msg string) *shirleyTempleGrenadineCall {
+	_c.Call = _c.Call.Panic(msg)
+	return _c
+}
+
+func (_c *shirleyTempleGrenadineCall) Once() *shirleyTempleGrenadineCall {
+	_c.Call = _c.Call.Once()
+	return _c
+}
+
+func (_c *shirleyTempleGrenadineCall) Twice() *shirleyTempleGrenadineCall {
+	_c.Call = _c.Call.Twice()
+	return _c
+}
+
+func (_c *shirleyTempleGrenadineCall) Times(i int) *shirleyTempleGrenadineCall {
+	_c.Call = _c.Call.Times(i)
+	return _c
+}
+
+func (_c *shirleyTempleGrenadineCall) WaitUntil(w <-chan time.Time) *shirleyTempleGrenadineCall {
+	_c.Call = _c.Call.WaitUntil(w)
+	return _c
+}
+
+func (_c *shirleyTempleGrenadineCall) After(d time.Duration) *shirleyTempleGrenadineCall {
+	_c.Call = _c.Call.After(d)
+	return _c
+}
+
+func (_c *shirleyTempleGrenadineCall) Run(fn func(args mock.Arguments)) *shirleyTempleGrenadineCall {
+	_c.Call = _c.Call.Run(fn)
+	return _c
+}
+
+func (_c *shirleyTempleGrenadineCall) Maybe() *shirleyTempleGrenadineCall {
+	_c.Call = _c.Call.Maybe()
+	return _c
+}
+
+func (_c *shirleyTempleGrenadineCall) TypedRun(fn func()) *shirleyTempleGrenadineCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		fn()
+	})
+	return _c
+}
+
+func (_c *shirleyTempleGrenadineCall) OnGetCherry() *shirleyTempleGetCherryCall {
+	return _c.Parent.OnGetCherry()
+}
+
+func (_c *shirleyTempleGrenadineCall) OnGrenadine() *shirleyTempleGrenadineCall {
+	return _c.Parent.OnGrenadine()
+}
+
+func (_c *shirleyTempleGrenadineCall) Onale(ginger string) *shirleyTemplealeCall {
+	return _c.Parent.Onale(ginger)
+}
+
+func (_c *shirleyTempleGrenadineCall) OnGetCherryRaw() *shirleyTempleGetCherryCall {
+	return _c.Parent.OnGetCherryRaw()
+}
+
+func (_c *shirleyTempleGrenadineCall) OnGrenadineRaw() *shirleyTempleGrenadineCall {
+	return _c.Parent.OnGrenadineRaw()
+}
+
+func (_c *shirleyTempleGrenadineCall) OnaleRaw(ginger interface{}) *shirleyTemplealeCall {
+	return _c.Parent.OnaleRaw(ginger)
+}
+
+func (_m *shirleyTempleMock) ale(ginger string) {
+	_m.Called(ginger)
+}
+
+func (_m *shirleyTempleMock) Onale(ginger string) *shirleyTemplealeCall {
+	return &shirleyTemplealeCall{Call: _m.Mock.On("ale", ginger), Parent: _m}
+}
+
+func (_m *shirleyTempleMock) OnaleRaw(ginger interface{}) *shirleyTemplealeCall {
+	return &shirleyTemplealeCall{Call: _m.Mock.On("ale", ginger), Parent: _m}
+}
+
+type shirleyTemplealeCall struct {
+	*mock.Call
+	Parent *shirleyTempleMock
+}
+
+func (_c *shirleyTemplealeCall) Panic(msg string) *shirleyTemplealeCall {
+	_c.Call = _c.Call.Panic(msg)
+	return _c
+}
+
+func (_c *shirleyTemplealeCall) Once() *shirleyTemplealeCall {
+	_c.Call = _c.Call.Once()
+	return _c
+}
+
+func (_c *shirleyTemplealeCall) Twice() *shirleyTemplealeCall {
+	_c.Call = _c.Call.Twice()
+	return _c
+}
+
+func (_c *shirleyTemplealeCall) Times(i int) *shirleyTemplealeCall {
+	_c.Call = _c.Call.Times(i)
+	return _c
+}
+
+func (_c *shirleyTemplealeCall) WaitUntil(w <-chan time.Time) *shirleyTemplealeCall {
+	_c.Call = _c.Call.WaitUntil(w)
+	return _c
+}
+
+func (_c *shirleyTemplealeCall) After(d time.Duration) *shirleyTemplealeCall {
+	_c.Call = _c.Call.After(d)
+	return _c
+}
+
+func (_c *shirleyTemplealeCall) Run(fn func(args mock.Arguments)) *shirleyTemplealeCall {
+	_c.Call = _c.Call.Run(fn)
+	return _c
+}
+
+func (_c *shirleyTemplealeCall) Maybe() *shirleyTemplealeCall {
+	_c.Call = _c.Call.Maybe()
+	return _c
+}
+
+func (_c *shirleyTemplealeCall) TypedRun(fn func(string)) *shirleyTemplealeCall {
+	_c.Call = _c.Call.Run(func(args mock.Arguments) {
+		_ginger := args.String(0)
+		fn(_ginger)
+	})
+	return _c
+}
+
+func (_c *shirleyTemplealeCall) OnGetCherry() *shirleyTempleGetCherryCall {
+	return _c.Parent.OnGetCherry()
+}
+
+func (_c *shirleyTemplealeCall) OnGrenadine() *shirleyTempleGrenadineCall {
+	return _c.Parent.OnGrenadine()
+}
+
+func (_c *shirleyTemplealeCall) Onale(ginger string) *shirleyTemplealeCall {
+	return _c.Parent.Onale(ginger)
+}
+
+func (_c *shirleyTemplealeCall) OnGetCherryRaw() *shirleyTempleGetCherryCall {
+	return _c.Parent.OnGetCherryRaw()
+}
+
+func (_c *shirleyTemplealeCall) OnGrenadineRaw() *shirleyTempleGrenadineCall {
+	return _c.Parent.OnGrenadineRaw()
+}
+
+func (_c *shirleyTemplealeCall) OnaleRaw(ginger interface{}) *shirleyTemplealeCall {
+	return _c.Parent.OnaleRaw(ginger)
+}

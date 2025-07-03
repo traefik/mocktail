@@ -99,35 +99,34 @@ func processSingleFile(sourceFile, root, moduleName string) (map[string]PackageD
 
 	// Get the package path for this file
 	fileDir := filepath.Dir(sourceFile)
-	relDir, err := filepath.Rel(root, fileDir)
-	if err != nil {
-		return nil, fmt.Errorf("get relative directory: %w", err)
-	}
-
-	importPath := path.Join(moduleName, relDir)
 
 	// Load the package
 	pkgs, err := packages.Load(
 		&packages.Config{
-			Mode: packages.NeedTypes,
-			Dir:  root,
+			Mode: packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedFiles,
+			Dir:  fileDir,
 		},
-		importPath,
+		".",
 	)
 	if err != nil {
-		return nil, fmt.Errorf("load package %q: %w", importPath, err)
+		return nil, fmt.Errorf("load package: %w", err)
 	}
 
 	if len(pkgs) == 0 {
-		return nil, fmt.Errorf("no packages found for %q", importPath)
+		return model, nil // Return empty model when no packages found
 	}
 
 	pkg := pkgs[0]
 	if pkg.Types == nil {
-		return nil, fmt.Errorf("package %q has no type information", importPath)
+		relDir, err := filepath.Rel(root, fileDir)
+		if err != nil {
+			return nil, fmt.Errorf("get relative directory: %w", err)
+		}
+
+		return nil, fmt.Errorf("package %q has no type information", path.Join(moduleName, relDir))
 	}
 
-	// Find all interfaces in the package
+	// Find all interfaces in the package (both exported and unexported)
 	packageDesc := PackageDesc{
 		Pkg:     pkg.Types,
 		Imports: map[string]struct{}{},
@@ -136,7 +135,7 @@ func processSingleFile(sourceFile, root, moduleName string) (map[string]PackageD
 	scope := pkg.Types.Scope()
 	for _, name := range scope.Names() {
 		obj := scope.Lookup(name)
-		if obj == nil || !obj.Exported() {
+		if obj == nil {
 			continue
 		}
 

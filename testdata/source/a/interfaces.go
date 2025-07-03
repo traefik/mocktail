@@ -5,3 +5,9 @@ type PiniaColada interface {
 	Pine(apple string)
 	Coconut()
 }
+
+type shirleyTemple interface {
+	ale(ginger string)
+	Grenadine()
+	GetCherry() (maraschino string)
+}
