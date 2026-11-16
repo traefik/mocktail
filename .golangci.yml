@@ -1,94 +1,109 @@
-run:
-  timeout: 10m
-
-linters-settings:
-  govet:
-    enable-all: true
-    disable:
-      - fieldalignment
-  gocyclo:
-    min-complexity: 15
-  goconst:
-    min-len: 5
-    min-occurrences: 3
-  misspell:
-    locale: US
-  funlen:
-    lines: -1
-    statements: 50
-  godox:
-    keywords:
-      - FIXME
-  gofumpt:
-    extra-rules: true
-  depguard:
-    rules:
-      main:
-        deny:
-          - pkg: "github.com/instana/testify"
-            desc: not allowed
-          - pkg: "github.com/pkg/errors"
-            desc: Should be replaced by standard lib errors package
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - style
-      - performance
-    disabled-checks:
-      - sloppyReassign
-      - rangeValCopy
-      - octalLiteral
-      - paramTypeCombine # already handle by gofumpt.extra-rules
-      - unnamedResult
-      - hugeParam
-  tagliatelle:
-    case:
-      rules:
-        json: pascal
-  gosec:
-    excludes:
-      - G304
-      - G306
-
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
-    - exportloopref # deprecated
-    - sqlclosecheck # not relevant (SQL)
-    - rowserrcheck # not relevant (SQL)
-    - cyclop # duplicate of gocyclo
-    - lll
+    - bodyclose
+    - contextcheck
+    - cyclop
     - dupl
-    - wsl
-    - nlreturn
-    - mnd
     - err113
-    - wrapcheck
+    - errchkjson
     - exhaustive
     - exhaustruct
-    - testpackage
-    - tparallel
+    - exhaustruct_v5
+    - forcetypeassert
+    - gomodguard # deprecated, replaced by gomodguard_v2
+    - ireturn
+    - lll
+    - mnd
+    - nilnil
+    - nlreturn
     - paralleltest
     - prealloc
-    - forcetypeassert
-    - bodyclose # Too many false positives: https://github.com/timakin/bodyclose/issues/30
+    - rowserrcheck
+    - sqlclosecheck
+    - testpackage
+    - tparallel
     - varnamelen
-    - nilnil
-    - ireturn
-    - errchkjson
-    - contextcheck
-
+    - wrapcheck
+    - wsl
+    - wsl_v5
+  settings:
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: github.com/instana/testify
+              desc: not allowed
+            - pkg: github.com/pkg/errors
+              desc: Should be replaced by standard lib errors package
+    funlen:
+      lines: -1
+      statements: 50
+    goconst:
+      min-len: 5
+      min-occurrences: 3
+    gocritic:
+      disabled-checks:
+        - sloppyReassign
+        - rangeValCopy
+        - octalLiteral
+        - paramTypeCombine
+        - unnamedResult
+        - hugeParam
+      enabled-tags:
+        - diagnostic
+        - style
+        - performance
+    gocyclo:
+      min-complexity: 15
+    godox:
+      keywords:
+        - FIXME
+    gosec:
+      excludes:
+        - G304
+        - G306
+        - G122 # symlink TOCTOU in WalkDir: mocktail only walks the user's own source tree
+    govet:
+      disable:
+        - fieldalignment
+      enable-all: true
+    misspell:
+      locale: US
+    tagliatelle:
+      case:
+        rules:
+          json: pascal
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - funlen
+          - noctx
+        path: .*_test.go
+      - path: (.+)\.go$
+        text: fmt.Sprintf can be replaced with string
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
-  exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude:
-    - 'fmt.Sprintf can be replaced with string'
-  exclude-rules:
-    - path: .*_test.go
-      linters:
-        - funlen
-        - noctx
-
-output:
-  show-stats: true
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gofumpt:
+      extra:
+        group-params: true
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
