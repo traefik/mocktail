@@ -64,6 +64,7 @@ linters:
       excludes:
         - G304
         - G306
+        - G122 # symlink TOCTOU in WalkDir: mocktail only walks the user's own source tree
     govet:
       disable:
         - fieldalignment

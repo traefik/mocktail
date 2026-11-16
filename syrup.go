@@ -743,14 +743,14 @@ func quickGoImports(descPkg PackageDesc) []string {
 
 func getParamName(tVar *types.Var, i int) string {
 	if tVar.Name() == "" {
-		return fmt.Sprintf("%sParam", string(rune('a'+i)))
+		return fmt.Sprintf("%sParam", string(rune('a'+i))) //nolint:gosec // i is a parameter index, cannot overflow a rune
 	}
 	return tVar.Name()
 }
 
 func getResultName(tVar *types.Var, i int) string {
 	if tVar.Name() == "" {
-		return fmt.Sprintf("_r%s%d", string(rune('a'+i)), i)
+		return fmt.Sprintf("_r%s%d", string(rune('a'+i)), i) //nolint:gosec // i is a result index, cannot overflow a rune
 	}
 	return tVar.Name()
 }
