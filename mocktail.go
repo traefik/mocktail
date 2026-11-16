@@ -108,12 +108,12 @@ func walk(root, moduleName string) (map[string]PackageDesc, error) {
 				continue
 			}
 
-			i := strings.Index(line, commentTagPattern)
-			if i <= -1 {
+			_, after, ok0 := strings.Cut(line, commentTagPattern)
+			if !ok0 {
 				continue
 			}
 
-			interfaceName := line[i+len(commentTagPattern):]
+			interfaceName := after
 
 			var importPath string
 			if index := strings.LastIndex(interfaceName, "."); index > 0 {
@@ -158,8 +158,8 @@ func walk(root, moduleName string) (map[string]PackageDesc, error) {
 				return fmt.Errorf("type %q in %q is not an interface", lookup.Type(), fp)
 			}
 
-			for i := range interfaceType.NumMethods() {
-				method := interfaceType.Method(i)
+			for method := range interfaceType.Methods() {
+				method := method
 
 				interfaceDesc.Methods = append(interfaceDesc.Methods, method)
 
@@ -202,8 +202,8 @@ func getTupleImports(tuples ...*types.Tuple) []string {
 	var imports []string
 
 	for _, tuple := range tuples {
-		for i := range tuple.Len() {
-			imports = append(imports, getTypeImports(tuple.At(i).Type())...)
+		for v := range tuple.Variables() {
+			imports = append(imports, getTypeImports(v.Type())...)
 		}
 	}
 
@@ -223,8 +223,8 @@ func getTypeImports(t types.Type) []string {
 
 	case *types.Struct:
 		var imports []string
-		for i := range v.NumFields() {
-			imports = append(imports, getTypeImports(v.Field(i).Type())...)
+		for field := range v.Fields() {
+			imports = append(imports, getTypeImports(field.Type())...)
 		}
 		return imports
 

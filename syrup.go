@@ -373,21 +373,21 @@ func (s Syrup) typedReturns(writer io.Writer) error {
 
 	w.Printf("func (_c *%s%sCall) TypedReturns(", structBaseName, s.Method.Name())
 
-	var returnNames string
+	var returnNames strings.Builder
 	for i := range results.Len() {
 		rName := string(rune(int('a') + i))
 
 		w.Printf("%s %s", rName, s.getTypeName(results.At(i).Type(), false))
-		returnNames += rName
+		returnNames.WriteString(rName)
 
 		if i+1 < results.Len() {
 			w.Print(", ")
-			returnNames += ", "
+			returnNames.WriteString(", ")
 		}
 	}
 
 	w.Printf(") *%s%sCall {\n", structBaseName, s.Method.Name())
-	w.Printf("\t_c.Call = _c.Return(%s)\n", returnNames)
+	w.Printf("\t_c.Call = _c.Return(%s)\n", returnNames.String())
 	w.Println("\treturn _c")
 	w.Println("}")
 	w.Println()
@@ -603,8 +603,8 @@ func (s Syrup) getTypeName(t types.Type, last bool) string {
 
 func (s Syrup) getTupleTypes(t *types.Tuple) []string {
 	var tupleTypes []string
-	for i := range t.Len() {
-		param := t.At(i)
+	for param := range t.Variables() {
+		param := param
 
 		tupleTypes = append(tupleTypes, s.getTypeName(param.Type(), false))
 	}
@@ -644,34 +644,35 @@ func (s Syrup) getChanTypeName(t *types.Chan) string {
 }
 
 func (s Syrup) createFuncSignature(params, results *types.Tuple) string {
-	fnSign := "func("
+	var fnSign strings.Builder
+	fnSign.WriteString("func(")
 	for i := range params.Len() {
 		param := params.At(i)
 		if param.Type().String() == contextType {
 			continue
 		}
 
-		fnSign += s.getTypeName(param.Type(), i == params.Len()-1)
+		fnSign.WriteString(s.getTypeName(param.Type(), i == params.Len()-1))
 
 		if i+1 < params.Len() {
-			fnSign += ", "
+			fnSign.WriteString(", ")
 		}
 	}
-	fnSign += ") "
+	fnSign.WriteString(") ")
 
 	if results != nil {
-		fnSign += "("
+		fnSign.WriteString("(")
 		for i := range results.Len() {
 			rType := results.At(i).Type()
-			fnSign += s.getTypeName(rType, false)
+			fnSign.WriteString(s.getTypeName(rType, false))
 			if i+1 < results.Len() {
-				fnSign += ", "
+				fnSign.WriteString(", ")
 			}
 		}
-		fnSign += ")"
+		fnSign.WriteString(")")
 	}
 
-	return fnSign
+	return fnSign.String()
 }
 
 func writeImports(writer io.Writer, descPkg PackageDesc) error {
@@ -682,7 +683,7 @@ func writeImports(writer io.Writer, descPkg PackageDesc) error {
 		return err
 	}
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"Name":    descPkg.Pkg.Name(),
 		"Imports": quickGoImports(descPkg),
 	}
@@ -705,7 +706,7 @@ func writeMockBase(writer io.Writer, interfaceName string, exported bool) error 
 		return err
 	}
 
-	return tmpl.Execute(writer, map[string]interface{}{"InterfaceName": interfaceName, "ConstructorPrefix": constructorPrefix})
+	return tmpl.Execute(writer, map[string]any{"InterfaceName": interfaceName, "ConstructorPrefix": constructorPrefix})
 }
 
 func quickGoImports(descPkg PackageDesc) []string {
@@ -768,7 +769,7 @@ func (w *Writer) Err() error {
 }
 
 // Print formats using the default formats for its operands and writes to standard output.
-func (w *Writer) Print(a ...interface{}) {
+func (w *Writer) Print(a ...any) {
 	if w.err != nil {
 		return
 	}
@@ -777,7 +778,7 @@ func (w *Writer) Print(a ...interface{}) {
 }
 
 // Printf formats according to a format specifier and writes to standard output.
-func (w *Writer) Printf(pattern string, a ...interface{}) {
+func (w *Writer) Printf(pattern string, a ...any) {
 	if w.err != nil {
 		return
 	}
@@ -786,7 +787,7 @@ func (w *Writer) Printf(pattern string, a ...interface{}) {
 }
 
 // Println formats using the default formats for its operands and writes to standard output.
-func (w *Writer) Println(a ...interface{}) {
+func (w *Writer) Println(a ...any) {
 	if w.err != nil {
 		return
 	}
