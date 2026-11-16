@@ -113,6 +113,36 @@ func (s Syrup) MockMethod(writer io.Writer) error {
 	return s.methodOnRaw(writer)
 }
 
+// Call generates mock.Call wrapper.
+func (s Syrup) Call(writer io.Writer, methods []*types.Func) error {
+	err := s.callBase(writer)
+	if err != nil {
+		return err
+	}
+
+	err = s.typedReturns(writer)
+	if err != nil {
+		return err
+	}
+
+	err = s.returnsFn(writer)
+	if err != nil {
+		return err
+	}
+
+	err = s.typedRun(writer)
+	if err != nil {
+		return err
+	}
+
+	err = s.callMethodsOn(writer, methods)
+	if err != nil {
+		return err
+	}
+
+	return s.callMethodOnRaw(writer, methods)
+}
+
 func (s Syrup) mockedMethod(writer io.Writer) error {
 	w := &Writer{writer: writer}
 
@@ -310,36 +340,6 @@ func (s Syrup) methodOnRaw(writer io.Writer) error {
 	w.Println()
 
 	return w.Err()
-}
-
-// Call generates mock.Call wrapper.
-func (s Syrup) Call(writer io.Writer, methods []*types.Func) error {
-	err := s.callBase(writer)
-	if err != nil {
-		return err
-	}
-
-	err = s.typedReturns(writer)
-	if err != nil {
-		return err
-	}
-
-	err = s.returnsFn(writer)
-	if err != nil {
-		return err
-	}
-
-	err = s.typedRun(writer)
-	if err != nil {
-		return err
-	}
-
-	err = s.callMethodsOn(writer, methods)
-	if err != nil {
-		return err
-	}
-
-	return s.callMethodOnRaw(writer, methods)
 }
 
 func (s Syrup) callBase(writer io.Writer) error {
@@ -604,8 +604,6 @@ func (s Syrup) getTypeName(t types.Type, last bool) string {
 func (s Syrup) getTupleTypes(t *types.Tuple) []string {
 	var tupleTypes []string
 	for param := range t.Variables() {
-		param := param
-
 		tupleTypes = append(tupleTypes, s.getTypeName(param.Type(), false))
 	}
 

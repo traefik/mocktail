@@ -159,8 +159,6 @@ func walk(root, moduleName string) (map[string]PackageDesc, error) {
 			}
 
 			for method := range interfaceType.Methods() {
-				method := method
-
 				interfaceDesc.Methods = append(interfaceDesc.Methods, method)
 
 				for _, imp := range getMethodImports(method, packageDesc.Pkg.Path()) {
